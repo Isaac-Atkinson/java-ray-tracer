@@ -33,19 +33,16 @@ public class Renderer {
     //The camera position
     private final Vector cameraPos = new Vector(0, 0, -400);
 
-    private WritableImage image;
-    private int imageWidth;
-    private int imageHeight;
-
+    private final WritableImage image;
     //The scene to be rendered
-    private RenderScene renderScene;
+    private final RenderScene renderScene;
 
+    PixelWriter pixelWriter;
 
     public Renderer(WritableImage image, RenderScene renderScene) {
         this.image = image;
         this.renderScene = renderScene;
-        imageWidth = (int) image.getWidth();
-        imageHeight = (int) image.getHeight();
+        pixelWriter = image.getPixelWriter();
     }
 
 
@@ -56,12 +53,10 @@ public class Renderer {
      * for that pixel before writing the colour to the image.
      */
     public void render() {
-        PixelWriter image_writer = image.getPixelWriter();
-
 
         //Loop through every pixel
-        for (int y = 0; y < imageHeight; y++) {
-            for (int x = 0; x < imageWidth; x++) {
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
 
                 //Generate a ray
                 Ray ray = generateRay(x, y);
@@ -79,32 +74,12 @@ public class Renderer {
                 }
 
                 //Set pixel color
-                image_writer.setColor(x, y, colour);
+                pixelWriter.setColor(x, y, colour);
             }
         }
     }
 
-//    public boolean naiveEqualsBVH(){
-//        for (int y = 0; y < imageHeight; y++) {
-//            System.out.println(y);
-//            for (int x = 0; x < imageWidth; x++) {
-//
-//                Ray ray = generateRay(x, y);
-//
-//
-//                Intersection hitNaive = renderScene.closestHitNaive(ray);
-//                Intersection hitBVH = renderScene.closestHit(ray);
-//
-//                if(hitNaive.hit != hitBVH.hit || hitNaive.t != hitBVH.t ){
-//                    return false;
-//                }
-//            }
-//        }
-//        return true;
-//    }
-
-
-
+    
 
     /**
      * Applies shading at an intersection point.
@@ -201,8 +176,8 @@ public class Renderer {
      */
     private Ray generateRay(int x, int y){
 
-        Vector pixelPos = new Vector(x - (imageWidth / 2.0),
-                (imageHeight - y) - (imageHeight / 2.0),
+        Vector pixelPos = new Vector(x - (image.getWidth() / 2.0),
+                (image.getHeight() - y) - (image.getHeight() / 2.0),
                 imagePlaneZ);
 
         Vector direction = pixelPos.sub(cameraPos);

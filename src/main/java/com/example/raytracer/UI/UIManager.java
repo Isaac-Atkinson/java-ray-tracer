@@ -6,6 +6,7 @@ import com.example.raytracer.geometry.Sphere;
 import com.example.raytracer.helper.Intersection;
 import com.example.raytracer.helper.LightSource;
 import com.example.raytracer.helper.Vector;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,9 +14,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -34,7 +33,7 @@ public class UIManager {
 
     ArrayList<SceneObject> objects = new ArrayList<>();
 
-    private Stage stage;
+    private final Stage stage;
 
     private double shininess = 32;
 
@@ -50,6 +49,10 @@ public class UIManager {
         WritableImage image = new WritableImage(imageWidth, imageHeight);
         ImageView view = new ImageView(image);
 
+
+
+
+        //Initialise initial objects in scene
         Vector lightPos = new Vector(0, 0, -300);
         Vector up = new Vector(0, 1, 0);
         Vector right = new Vector(1, 0, -1);
@@ -71,19 +74,20 @@ public class UIManager {
         plane.centre = new Vector(0,0,800);
         objects.add(plane);
 
-//        Sphere sphere = new Sphere(new Vector(0,0,200),
-//                150,
-//                Color.color(1,1,1),
-//                Color.color(1,1,1),
-//                Color.color(1,1,1),
-//                0
-//                );
-//        objects.add(sphere);
 
+
+
+
+        //Initialise RenderScene and Renderer classes
         RenderScene sc = new RenderScene(objects, light);
         renderer = new Renderer(image, sc);
         renderer.render();
 
+
+
+
+
+        //Initialise UI elements
         Button sampleCountUpButton = new Button("Increase");
         Button sampleCountDownButton = new Button("Decrease");
         Button bunnyButton = new Button("Bunny");
@@ -106,10 +110,9 @@ public class UIManager {
         lightZAxisSlider.setSnapToTicks(true);
 
         Slider shininessSlider = new Slider(15, 100, shininess);
-        lightZAxisSlider.setMajorTickUnit(1);
-        lightZAxisSlider.setMinorTickCount(0);
-        lightZAxisSlider.setSnapToTicks(true);
-
+        shininessSlider.setMajorTickUnit(1);
+        shininessSlider.setMinorTickCount(0);
+        shininessSlider.setSnapToTicks(true);
 
         Label sampleCountLabel = new Label("Shadow sample count: " + renderer.getSampleCount());
 
@@ -125,14 +128,23 @@ public class UIManager {
                 lightZAxisSlider
         );
 
-        HBox modelButtons = new HBox(10, bunnyButton, dragonButton, buddhaButton);
+        HBox modelButtons = new HBox(10,
+                bunnyButton,
+                dragonButton,
+                buddhaButton);
+
+        HBox.setHgrow(bunnyButton, Priority.ALWAYS);
+        HBox.setHgrow(dragonButton, Priority.ALWAYS);
+        HBox.setHgrow(buddhaButton, Priority.ALWAYS);
 
         VBox modelControls = new VBox(10,
                 new Label("Model"),
                 modelButtons
         );
 
-        HBox sampleButtons = new HBox(10, sampleCountDownButton, sampleCountUpButton);
+        HBox sampleButtons = new HBox(10,
+                sampleCountDownButton,
+                sampleCountUpButton);
 
         VBox sampleControls = new VBox(10,
                 sampleCountLabel,
@@ -156,22 +168,42 @@ public class UIManager {
 
 
 
+        BorderPane root = new BorderPane();
+        root.setLeft(controlsPanel);
+        root.setRight(view);
 
-        GridPane root = new GridPane();
-        root.add(controlsPanel, 0, 0);
-        root.setVgap(12);
-        root.setHgap(12);
-        root.add(view, 2, 0);
+        GridPane.setHgrow(view, Priority.ALWAYS);
+        GridPane.setVgrow(view, Priority.ALWAYS);
 
 
 
-        Scene scene = new Scene(root, 750, 600);
+
+
+        //Initialise JavaFX scene
+        Scene scene = new Scene(root);
+
+        view.setPreserveRatio(true);
+        view.setSmooth(true);
+
+        view.fitWidthProperty()
+                .bind(scene.widthProperty()
+                        .subtract(controlsPanel.widthProperty()));
+
+        view.fitHeightProperty()
+                .bind(scene.heightProperty());
+
+        controlsPanel.prefWidthProperty()
+                .bind(scene.widthProperty().multiply(0.3));
+
         stage.setScene(scene);
+        stage.setMinWidth(750);
+        stage.setMinHeight(550);
         stage.show();
 
 
 
 
+        //Initialise actions
         bunnyButton.setOnAction(e -> {
             PLYReader plyReader = new PLYReader();
             File file = null;
