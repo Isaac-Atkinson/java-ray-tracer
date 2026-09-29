@@ -30,6 +30,9 @@ public class Renderer {
 
     //The z axis coordinate of the image plane
     private static final int imagePlaneZ = 0;
+
+    private static final double imagePlaneWidth = 500;
+    private static final double imagePlaneHeight = 500;
     //The camera position
     private final Vector cameraPos = new Vector(0, 0, -400);
 
@@ -79,7 +82,7 @@ public class Renderer {
         }
     }
 
-    
+
 
     /**
      * Applies shading at an intersection point.
@@ -175,10 +178,11 @@ public class Renderer {
      * @return the generated ray
      */
     private Ray generateRay(int x, int y){
+        
+        double pixelX = ((x + 0.5) /image.getWidth() - 0.5) * imagePlaneWidth;
+        double pixelY = (0.5 - (y + 0.5) / image.getHeight()) * imagePlaneHeight;
 
-        Vector pixelPos = new Vector(x - (image.getWidth() / 2.0),
-                (image.getHeight() - y) - (image.getHeight() / 2.0),
-                imagePlaneZ);
+        Vector pixelPos = new Vector(pixelX, pixelY, imagePlaneZ);
 
         Vector direction = pixelPos.sub(cameraPos);
         direction.normalise();

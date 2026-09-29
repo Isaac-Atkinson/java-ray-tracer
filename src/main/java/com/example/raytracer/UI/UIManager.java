@@ -27,8 +27,8 @@ import java.util.ArrayList;
 
 public class UIManager {
 
-    int imageWidth = 500;
-    int imageHeight = 500;
+    int imageWidth = 1000;
+    int imageHeight = 1000;
     Renderer renderer;
 
     ArrayList<SceneObject> objects = new ArrayList<>();
@@ -69,8 +69,8 @@ public class UIManager {
         Vector pointOnPlane1 = new Vector(0,0,800);
         Plane plane = new Plane(planeNormal1, pointOnPlane1, Color.color(0.1,0.1,0.1), Color.color(0.7,0.7,0.7),
                 Color.color(0,0,0), 0);
-        plane.minVals = new Vector(-800, -800, 800);
-        plane.maxVals = new Vector(800, 800, 800);
+        plane.minVals = new Vector(-8000, -8000, 800);
+        plane.maxVals = new Vector(8000, 8000, 800);
         plane.centre = new Vector(0,0,800);
         objects.add(plane);
 
@@ -196,8 +196,8 @@ public class UIManager {
                 .bind(scene.widthProperty().multiply(0.3));
 
         stage.setScene(scene);
-        stage.setMinWidth(750);
-        stage.setMinHeight(550);
+        stage.setMinWidth(1500);
+        stage.setMinHeight(1050);
         stage.show();
 
 
