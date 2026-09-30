@@ -1,9 +1,6 @@
 package com.example.raytracer.render;
 
-import com.example.raytracer.helper.Intersection;
-import com.example.raytracer.helper.Ray;
-import com.example.raytracer.helper.Vector;
-import com.example.raytracer.helper.LightSource;
+import com.example.raytracer.helper.*;
 import com.example.raytracer.geometry.SceneObject;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
@@ -30,13 +27,7 @@ public class Renderer {
     private int currSampleIndex = 0;
     private int sampleCount = sampleLevels[currSampleIndex];
 
-    //The z axis coordinate of the image plane
-    private static final int imagePlaneZ = 0;
-
-    private static final double imagePlaneWidth = 500;
-    private static final double imagePlaneHeight = 500;
-    //The camera position
-    private final Vector cameraPos = new Vector(0, 0, -400);
+    private Camera camera;
 
     private final WritableImage image;
     //The scene to be rendered
@@ -44,8 +35,9 @@ public class Renderer {
 
     PixelWriter pixelWriter;
 
-    public Renderer(WritableImage image, RenderScene renderScene) {
+    public Renderer(WritableImage image, Camera camera, RenderScene renderScene) {
         this.image = image;
+        this.camera = camera;
         this.renderScene = renderScene;
         pixelWriter = image.getPixelWriter();
     }
@@ -98,15 +90,21 @@ public class Renderer {
      */
     private Ray generateRay(int x, int y){
 
-        double pixelX = ((x + 0.5) /image.getWidth() - 0.5) * imagePlaneWidth;
-        double pixelY = (0.5 - (y + 0.5) / image.getHeight()) * imagePlaneHeight;
+        double scale = Math.tan(Math.toRadians(camera.getFov() / 2.0));
 
-        Vector pixelPos = new Vector(pixelX, pixelY, imagePlaneZ);
+        double pixelX = (2.0 * ((x + 0.5) / image.getWidth()) - 1)
+                * scale;
 
-        Vector direction = pixelPos.sub(cameraPos);
+        double pixelY = (1 - 2.0 * ((y + 0.5) / image.getHeight()))
+                * scale;
+
+        Vector direction =
+                camera.getForward()
+                .add(camera.getRight().mul(pixelX))
+                .add(camera.getUp().mul(pixelY));
         direction.normalise();
 
-        return new Ray(cameraPos, direction);
+        return new Ray(camera.getPosition(), direction);
     }
 
 

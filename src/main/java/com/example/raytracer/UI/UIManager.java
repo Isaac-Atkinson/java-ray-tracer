@@ -2,11 +2,9 @@ package com.example.raytracer.UI;
 
 import com.example.raytracer.geometry.Plane;
 import com.example.raytracer.geometry.SceneObject;
-import com.example.raytracer.geometry.Sphere;
-import com.example.raytracer.helper.Intersection;
+import com.example.raytracer.helper.Camera;
 import com.example.raytracer.helper.LightSource;
 import com.example.raytracer.helper.Vector;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,26 +14,30 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import com.example.raytracer.render.PLYReader;
 import com.example.raytracer.render.RenderScene;
 import com.example.raytracer.render.Renderer;
 
 import java.io.File;
-import java.util.ArrayList;
+
 
 public class UIManager {
 
     int imageWidth = 1000;
     int imageHeight = 1000;
-    Renderer renderer;
 
-    ArrayList<SceneObject> objects = new ArrayList<>();
+    Renderer renderer;
 
     private final Stage stage;
 
-    private double shininess = 32;
+    private final Vector cameraLookAt = new Vector(0,0,0);
+    private final double defaultRadius = 600;
+    private final double defaultYaw = 180;
+    private final double defaultPitch = 0;
+    private final double defaultFov = 60;
+
+    private double defaultShininess = 32;
 
 
     public UIManager(Stage stage) {
@@ -49,51 +51,43 @@ public class UIManager {
         WritableImage image = new WritableImage(imageWidth, imageHeight);
         ImageView view = new ImageView(image);
 
-
-
-
-        //Initialise initial objects in scene
-        Vector lightPos = new Vector(0, 0, -300);
-        Vector up = new Vector(0, 1, 0);
-        Vector right = new Vector(1, 0, -1);
-        LightSource light = new LightSource(
-                lightPos,
-                Color.color(1,1,1),
-                20,
-                20,
-                right,
-                up
+        Camera camera = new Camera(
+                cameraLookAt,
+                defaultRadius,
+                defaultYaw,
+                defaultPitch,
+                defaultFov
         );
-
-        Vector planeNormal1 = new Vector(0,0,-1);
-        Vector pointOnPlane1 = new Vector(0,0,800);
-        Plane plane = new Plane(planeNormal1, pointOnPlane1, Color.color(0.1,0.1,0.1), Color.color(0.7,0.7,0.7),
-                Color.color(0,0,0), 0);
-        plane.minVals = new Vector(-8000, -8000, 800);
-        plane.maxVals = new Vector(8000, 8000, 800);
-        plane.centre = new Vector(0,0,800);
-        objects.add(plane);
-
-
 
 
 
         //Initialise RenderScene and Renderer classes
-        RenderScene sc = new RenderScene(objects, light);
-        renderer = new Renderer(image, sc);
+        RenderScene sc =  new RenderScene();
+        renderer = new Renderer(image, camera, sc);
         renderer.render();
 
 
 
 
-
         //Initialise UI elements
-        Button sampleCountUpButton = new Button("Increase");
-        Button sampleCountDownButton = new Button("Decrease");
+
+
+        //Initialise scene loading controls
         Button bunnyButton = new Button("Bunny");
         Button dragonButton = new Button("Dragon");
         Button buddhaButton = new Button("Buddha");
 
+        HBox modelButtons = new HBox(10,
+                bunnyButton,
+                dragonButton,
+                buddhaButton);
+
+        VBox modelControls = new VBox(10,
+                new Label("Model"),
+                modelButtons
+        );
+
+        //Initialise light controls
         Slider lightXAxisSlider = new Slider(-(imageWidth / 2), imageWidth / 2, 0);
         lightXAxisSlider.setMajorTickUnit(1);
         lightXAxisSlider.setMinorTickCount(0);
@@ -109,14 +103,6 @@ public class UIManager {
         lightZAxisSlider.setMinorTickCount(0);
         lightZAxisSlider.setSnapToTicks(true);
 
-        Slider shininessSlider = new Slider(15, 100, shininess);
-        shininessSlider.setMajorTickUnit(1);
-        shininessSlider.setMinorTickCount(0);
-        shininessSlider.setSnapToTicks(true);
-
-
-        Label sampleCountLabel = new Label("Shadow sample count: " + renderer.getSampleCount());
-
         VBox lightControls = new VBox(10,
                 new Label("Light X Position"),
                 lightXAxisSlider,
@@ -129,19 +115,39 @@ public class UIManager {
                 lightZAxisSlider
         );
 
-        HBox modelButtons = new HBox(10,
-                bunnyButton,
-                dragonButton,
-                buddhaButton);
+        //Initialise shininess controls
+        Slider shininessSlider = new Slider(15, 100, defaultShininess);
+        shininessSlider.setMajorTickUnit(1);
+        shininessSlider.setMinorTickCount(0);
+        shininessSlider.setSnapToTicks(true);
 
-        HBox.setHgrow(bunnyButton, Priority.ALWAYS);
-        HBox.setHgrow(dragonButton, Priority.ALWAYS);
-        HBox.setHgrow(buddhaButton, Priority.ALWAYS);
+        VBox materialControls = new VBox(10,
+                new Label("Shininess"),
+                shininessSlider);
 
-        VBox modelControls = new VBox(10,
-                new Label("Model"),
-                modelButtons
-        );
+        //Initialise camera controls
+        Slider cameraDistanceSlider = new Slider(200,1000,defaultRadius);
+        Slider cameraYawSlider = new Slider(-180,180,defaultYaw);
+        Slider cameraPitchSlider = new Slider(-89,89,defaultPitch);
+        Slider cameraFovSlider = new Slider(20,100,defaultFov);
+
+        VBox cameraControls = new VBox(10,
+                new Label("Camera Controls"),
+                new Label("X"),
+                cameraYawSlider,
+                new Label("Y"),
+                cameraPitchSlider,
+                new Label("Distance"),
+                cameraDistanceSlider,
+                new Label("FOV"),
+                cameraFovSlider);
+
+
+        //Intialise shadow controls
+        Button sampleCountUpButton = new Button("Increase");
+        Button sampleCountDownButton = new Button("Decrease");
+
+        Label sampleCountLabel = new Label("Shadow sample count: " + renderer.getSampleCount());
 
         HBox sampleButtons = new HBox(10,
                 sampleCountDownButton,
@@ -152,9 +158,8 @@ public class UIManager {
                 sampleButtons
         );
 
-        VBox materialControls = new VBox(10,
-                new Label("Shininess"),
-                shininessSlider);
+
+
 
         VBox controlsPanel = new VBox(15,
                 new Separator(),
@@ -164,7 +169,9 @@ public class UIManager {
                 new Separator(),
                 sampleControls,
                 new Separator(),
-                materialControls
+                materialControls,
+                new Separator(),
+                cameraControls
         );
 
 
@@ -177,11 +184,12 @@ public class UIManager {
         GridPane.setVgrow(view, Priority.ALWAYS);
 
 
-
-
-
         //Initialise JavaFX scene
         Scene scene = new Scene(root);
+
+        scene.getStylesheets().add(
+                getClass().getResource("/style.css").toExternalForm()
+        );
 
         view.setPreserveRatio(true);
         view.setSmooth(true);
@@ -205,6 +213,12 @@ public class UIManager {
 
 
 
+
+
+
+
+
+
         //Initialise actions
         bunnyButton.setOnAction(e -> {
             PLYReader plyReader = new PLYReader();
@@ -218,16 +232,15 @@ public class UIManager {
 
 
             sc.clearObjects();
-            sc.addObjects(objects);
 
             if(file.exists()) {
                 sc.addObjects(plyReader.readPLYFile(file,
                         Color.color(0.15,0.14,0.13),
                         Color.color(0.86,0.84,0.78),
                         Color.color(0.95,0.95,0.95),
-                        shininess,
+                        defaultShininess,
                         2600,
-                        new Vector(50, -250, 200)
+                        new Vector(50, -250, 0)
                 ));
                 renderer.render();
             }
@@ -243,21 +256,18 @@ public class UIManager {
             }
 
             sc.clearObjects();
-            sc.addObjects(objects);
+
 
             if(file.exists()) {
                 sc.addObjects(plyReader.readPLYFile(file,
                         Color.color(0.15,0.14,0.13),
                         Color.color(0.86,0.84,0.78),
                         Color.color(0.95,0.95,0.95),
-                        shininess,
+                        defaultShininess,
                         2800,
-                        new Vector(10, -300, 200)
+                        new Vector(10, -300, 0)
                 ));
                 renderer.render();
-
-
-
             }
         });
 
@@ -271,16 +281,15 @@ public class UIManager {
             }
 
             sc.clearObjects();
-            sc.addObjects(objects);
 
             if(file.exists()) {
                 sc.addObjects(plyReader.readPLYFile(file,
                         Color.color(0.15,0.14,0.13),
                         Color.color(0.86,0.84,0.78),
                         Color.color(0.95,0.95,0.95),
-                        shininess,
+                        defaultShininess,
                         2800,
-                        new Vector(0, -400, 200)
+                        new Vector(0, -400, 0)
                 ));
                 renderer.render();
             }
@@ -303,7 +312,7 @@ public class UIManager {
         lightXAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightXAxisSlider.getValue();
-                light.setXPos(finalValue);
+                sc.getLight().setXPos(finalValue);
                 renderer.render();
             }
         });
@@ -311,7 +320,7 @@ public class UIManager {
         lightYAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightYAxisSlider.getValue();
-                light.setYPos(finalValue);
+                sc.getLight().setYPos(finalValue);
                 renderer.render();
             }
         });
@@ -319,7 +328,7 @@ public class UIManager {
         lightZAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightZAxisSlider.getValue();
-                light.setZPos(finalValue);
+                sc.getLight().setZPos(finalValue);
                 renderer.render();
             }
         });
@@ -327,8 +336,40 @@ public class UIManager {
         shininessSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = shininessSlider.getValue();
-                shininess = finalValue;
-                sc.setShininess(shininess);
+                defaultShininess = finalValue;
+                sc.setShininess(defaultShininess);
+                renderer.render();
+            }
+        });
+
+        cameraDistanceSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                double finalValue = cameraDistanceSlider.getValue();
+                camera.setRadius(finalValue);
+                renderer.render();
+            }
+        });
+
+        cameraYawSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                double finalValue = cameraYawSlider.getValue();
+                camera.setYaw(finalValue);
+                renderer.render();
+            }
+        });
+
+        cameraPitchSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                double finalValue = cameraPitchSlider.getValue();
+                camera.setPitch(finalValue);
+                renderer.render();
+            }
+        });
+
+        cameraFovSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                double finalValue = cameraFovSlider.getValue();
+                camera.setFov(finalValue);
                 renderer.render();
             }
         });
