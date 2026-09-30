@@ -5,11 +5,13 @@ import com.example.raytracer.helper.Ray;
 import com.example.raytracer.helper.Vector;
 import com.example.raytracer.helper.LightSource;
 import com.example.raytracer.geometry.SceneObject;
+import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 /**
  * This class is responsible for rendering the scene.
@@ -57,8 +59,11 @@ public class Renderer {
      */
     public void render() {
 
-        //Loop through every pixel
-        for (int y = 0; y < image.getHeight(); y++) {
+        int width = (int) image.getWidth();
+        int height = (int) image.getHeight();
+        Color[][] colors = new Color[height][width];
+
+        IntStream.range(0, height).parallel().forEach(y -> {
             for (int x = 0; x < image.getWidth(); x++) {
 
                 //Generate a ray
@@ -66,20 +71,42 @@ public class Renderer {
 
                 //Find the closest intersection
                 Intersection obj = renderScene.closestHit(ray);
-                Color colour;
 
-                //Apply shading if hit found, otherwise apply background colour
-                if(obj.hit != null){
-                    colour = applyShading(obj, ray);
+                //compute pixel colour
+                colors[y][x] = (obj.hit != null)
+                        ? applyShading(obj, ray)
+                        : backgroundColor;
 
-                } else {
-                    colour = backgroundColor;
-                }
+            }
+        });
 
-                //Set pixel color
-                pixelWriter.setColor(x, y, colour);
+        //write accumulated colours to the image
+        for(int y = 0; y < image.getHeight(); y++){
+            for(int x = 0; x < image.getWidth(); x++){
+                pixelWriter.setColor(x, y, colors[y][x]);
             }
         }
+    }
+
+
+
+    /**
+     * Generates a ray in the direction of the pixel.
+     * @param x the pixel x coordinate
+     * @param y the pixel y coordinate
+     * @return the generated ray
+     */
+    private Ray generateRay(int x, int y){
+
+        double pixelX = ((x + 0.5) /image.getWidth() - 0.5) * imagePlaneWidth;
+        double pixelY = (0.5 - (y + 0.5) / image.getHeight()) * imagePlaneHeight;
+
+        Vector pixelPos = new Vector(pixelX, pixelY, imagePlaneZ);
+
+        Vector direction = pixelPos.sub(cameraPos);
+        direction.normalise();
+
+        return new Ray(cameraPos, direction);
     }
 
 
@@ -171,24 +198,7 @@ public class Renderer {
         }
     }
 
-    /**
-     * Generates a ray in the direction of the pixel.
-     * @param x the pixel x coordinate
-     * @param y the pixel y coordinate
-     * @return the generated ray
-     */
-    private Ray generateRay(int x, int y){
-        
-        double pixelX = ((x + 0.5) /image.getWidth() - 0.5) * imagePlaneWidth;
-        double pixelY = (0.5 - (y + 0.5) / image.getHeight()) * imagePlaneHeight;
 
-        Vector pixelPos = new Vector(pixelX, pixelY, imagePlaneZ);
-
-        Vector direction = pixelPos.sub(cameraPos);
-        direction.normalise();
-
-        return new Ray(cameraPos, direction);
-    }
 
 
     /**
@@ -302,5 +312,6 @@ public class Renderer {
     public int getSampleCount() {
         return sampleCount;
     }
+
 
 }

@@ -114,6 +114,7 @@ public class UIManager {
         shininessSlider.setMinorTickCount(0);
         shininessSlider.setSnapToTicks(true);
 
+
         Label sampleCountLabel = new Label("Shadow sample count: " + renderer.getSampleCount());
 
         VBox lightControls = new VBox(10,
@@ -196,8 +197,9 @@ public class UIManager {
                 .bind(scene.widthProperty().multiply(0.3));
 
         stage.setScene(scene);
-        stage.setMinWidth(1500);
-        stage.setMinHeight(1050);
+        stage.setMinWidth(900);
+        stage.setMinHeight(650);
+        stage.setMaximized(true);
         stage.show();
 
 
@@ -330,6 +332,8 @@ public class UIManager {
                 renderer.render();
             }
         });
+
+
     }
 }
 
