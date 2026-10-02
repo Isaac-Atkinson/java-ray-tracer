@@ -17,23 +17,23 @@ public class Renderer {
 
     public static final double EPSILON = 1e-6;
 
-    //The sample levels for sampling a light source. The light source sampling expects square numbers
-    private static final int[] sampleLevels = {1, 4, 16, 64};
-
     //The background colour
     private static final Color backgroundColor = Color.color(0.0, 0.0, 0.0);
 
-    //The current sample count is selected from the array of possible sample counts
-    private int currSampleIndex = 0;
-    private int sampleCount = sampleLevels[currSampleIndex];
+    private final Camera camera;
 
-    private Camera camera;
-
-    private final WritableImage image;
     //The scene to be rendered
     private final RenderScene renderScene;
 
+    //The JavaFX image
+    private final WritableImage image;
+    //The image writer
     PixelWriter pixelWriter;
+
+    //The shadow sample count
+    private int sampleCount = 1;
+
+
 
     public Renderer(WritableImage image, Camera camera, RenderScene renderScene) {
         this.image = image;
@@ -293,22 +293,17 @@ public class Renderer {
         return rgb;
     }
 
-    public void increaseSampleCount() {
-        if(currSampleIndex < sampleLevels.length - 1) {
-            currSampleIndex++;
-            sampleCount = sampleLevels[currSampleIndex];
-        }
 
-    }
-    public void decreaseSampleCount() {
-        if(currSampleIndex > 0) {
-            currSampleIndex--;
-            sampleCount = sampleLevels[currSampleIndex];
-        }
+    public void setShadowQualityLow(){
+        sampleCount = 1;
     }
 
-    public int getSampleCount() {
-        return sampleCount;
+    public void setShadowQualityHigh(){
+        sampleCount = 16;
+    }
+
+    public void setShadowQualityVeryHigh(){
+        sampleCount = 64;
     }
 
 

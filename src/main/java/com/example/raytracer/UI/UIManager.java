@@ -1,15 +1,11 @@
 package com.example.raytracer.UI;
 
-import com.example.raytracer.geometry.Plane;
+import com.example.raytracer.geometry.Model;
 import com.example.raytracer.geometry.SceneObject;
 import com.example.raytracer.helper.Camera;
-import com.example.raytracer.helper.LightSource;
 import com.example.raytracer.helper.Vector;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
@@ -20,6 +16,7 @@ import com.example.raytracer.render.RenderScene;
 import com.example.raytracer.render.Renderer;
 
 import java.io.File;
+import java.util.ArrayList;
 
 
 public class UIManager {
@@ -31,13 +28,18 @@ public class UIManager {
 
     private final Stage stage;
 
+    Model currentModel;
+
+    private final PLYReader plyReader = new PLYReader();
+
     private final Vector cameraLookAt = new Vector(0,0,0);
-    private final double defaultRadius = 600;
+    private final double defaultRadius = 1000;
     private final double defaultYaw = 180;
     private final double defaultPitch = 0;
-    private final double defaultFov = 60;
+    private final double defaultFov = 80;
 
-    private double defaultShininess = 32;
+    private final Color defaultColor = Color.color(0.86,0.84,0.78);
+    private final double defaultShininess = 32;
 
 
     public UIManager(Stage stage) {
@@ -88,17 +90,17 @@ public class UIManager {
         );
 
         //Initialise light controls
-        Slider lightXAxisSlider = new Slider(-(imageWidth / 2), imageWidth / 2, 0);
+        Slider lightXAxisSlider = new Slider(-500, 500, 0);
         lightXAxisSlider.setMajorTickUnit(1);
         lightXAxisSlider.setMinorTickCount(0);
         lightXAxisSlider.setSnapToTicks(true);
 
-        Slider lightYAxisSlider = new Slider(-(imageWidth / 2), imageWidth / 2, 0);
+        Slider lightYAxisSlider = new Slider(-500, 500, 0);
         lightYAxisSlider.setMajorTickUnit(1);
         lightYAxisSlider.setMinorTickCount(0);
         lightYAxisSlider.setSnapToTicks(true);
 
-        Slider lightZAxisSlider = new Slider(-400, 0, -200);
+        Slider lightZAxisSlider = new Slider(-400, -100, -400);
         lightZAxisSlider.setMajorTickUnit(1);
         lightZAxisSlider.setMinorTickCount(0);
         lightZAxisSlider.setSnapToTicks(true);
@@ -115,13 +117,18 @@ public class UIManager {
                 lightZAxisSlider
         );
 
-        //Initialise shininess controls
-        Slider shininessSlider = new Slider(15, 100, defaultShininess);
+        //Initialise model controls
+        Slider shininessSlider = new Slider(5, 100, defaultShininess);
         shininessSlider.setMajorTickUnit(1);
         shininessSlider.setMinorTickCount(0);
         shininessSlider.setSnapToTicks(true);
 
+        ColorPicker modelColorPicker = new ColorPicker(defaultColor);
+
         VBox materialControls = new VBox(10,
+                new Label("Model Material"),
+                new Label("Model Colour"),
+                modelColorPicker,
                 new Label("Shininess"),
                 shininessSlider);
 
@@ -144,14 +151,17 @@ public class UIManager {
 
 
         //Intialise shadow controls
-        Button sampleCountUpButton = new Button("Increase");
-        Button sampleCountDownButton = new Button("Decrease");
+        Button shadowQualityLowButton = new Button("Low");
+        Button shadowQualityHighButton = new Button("High");
+        Button shadowQualityVeryHighButton = new Button("Very High");
 
-        Label sampleCountLabel = new Label("Shadow sample count: " + renderer.getSampleCount());
+
+        Label sampleCountLabel = new Label("Shadow quality");
 
         HBox sampleButtons = new HBox(10,
-                sampleCountDownButton,
-                sampleCountUpButton);
+                shadowQualityLowButton,
+                shadowQualityHighButton,
+                shadowQualityVeryHighButton);
 
         VBox sampleControls = new VBox(10,
                 sampleCountLabel,
@@ -221,7 +231,6 @@ public class UIManager {
 
         //Initialise actions
         bunnyButton.setOnAction(e -> {
-            PLYReader plyReader = new PLYReader();
             File file = null;
             try {
                 file = new File(getClass().getResource("/com/example/raytracer/models/bun_zipper.ply").toURI());
@@ -229,25 +238,28 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-
-
             sc.clearObjects();
 
             if(file.exists()) {
-                sc.addObjects(plyReader.readPLYFile(file,
-                        Color.color(0.15,0.14,0.13),
-                        Color.color(0.86,0.84,0.78),
-                        Color.color(0.95,0.95,0.95),
-                        defaultShininess,
-                        2600,
-                        new Vector(50, -250, 0)
-                ));
+                ArrayList<SceneObject> modelTriangles =
+                        getModelTriangles(
+                                file,
+                                2600,
+                                new Vector(50, -250, 0)
+                        );
+
+                Model model = new Model(modelTriangles);
+                model.setColor(defaultColor);
+                model.setShininess(defaultShininess);
+                sc.addObjects(model.getTriangles());
+
+                currentModel = model;
+
                 renderer.render();
             }
         });
 
         dragonButton.setOnAction(e -> {
-            PLYReader plyReader = new PLYReader();
             File file = null;
             try {
                 file = new File(getClass().getResource("/com/example/raytracer/models/dragon_vrip.ply").toURI());
@@ -257,22 +269,26 @@ public class UIManager {
 
             sc.clearObjects();
 
+            if (file.exists()) {
+                ArrayList<SceneObject> modelTriangles =
+                        getModelTriangles(
+                                file,
+                                2800,
+                                new Vector(10, -300, 0)
+                        );
 
-            if(file.exists()) {
-                sc.addObjects(plyReader.readPLYFile(file,
-                        Color.color(0.15,0.14,0.13),
-                        Color.color(0.86,0.84,0.78),
-                        Color.color(0.95,0.95,0.95),
-                        defaultShininess,
-                        2800,
-                        new Vector(10, -300, 0)
-                ));
+                Model model = new Model(modelTriangles);
+                model.setColor(defaultColor);
+                model.setShininess(defaultShininess);
+                sc.addObjects(model.getTriangles());
+
+                currentModel = model;
+
                 renderer.render();
             }
         });
 
         buddhaButton.setOnAction(e -> {
-            PLYReader plyReader = new PLYReader();
             File file = null;
             try {
                 file = new File(getClass().getResource("/com/example/raytracer/models/happy_vrip.ply").toURI());
@@ -283,27 +299,44 @@ public class UIManager {
             sc.clearObjects();
 
             if(file.exists()) {
-                sc.addObjects(plyReader.readPLYFile(file,
-                        Color.color(0.15,0.14,0.13),
-                        Color.color(0.86,0.84,0.78),
-                        Color.color(0.95,0.95,0.95),
-                        defaultShininess,
-                        2800,
-                        new Vector(0, -400, 0)
-                ));
+                ArrayList<SceneObject> modelTriangles =
+                        getModelTriangles(
+                                file,
+                                2800,
+                                new Vector(0, -400, 0)
+                        );
+
+                Model model = new Model(modelTriangles);
+                model.setColor(defaultColor);
+                model.setShininess(defaultShininess);
+                sc.addObjects(model.getTriangles());
+
+                currentModel = model;
+
                 renderer.render();
             }
         });
 
-        sampleCountUpButton.setOnAction(e -> {
-            renderer.increaseSampleCount();
-            sampleCountLabel.setText("Shadow sample count: " + renderer.getSampleCount());
+        shadowQualityLowButton.setOnAction(e -> {
+            renderer.setShadowQualityLow();
             renderer.render();
         });
-        sampleCountDownButton.setOnAction(e -> {
-            renderer.decreaseSampleCount();
-            sampleCountLabel.setText("Shadow sample count: " + renderer.getSampleCount());
+        shadowQualityHighButton.setOnAction(e -> {
+            renderer.setShadowQualityHigh();
             renderer.render();
+        });
+        shadowQualityVeryHighButton.setOnAction(e -> {
+            renderer.setShadowQualityVeryHigh();
+            renderer.render();
+        });
+
+        modelColorPicker.setOnAction(e -> {
+            Color color = modelColorPicker.getValue();
+
+            currentModel.setColor(color);
+
+            renderer.render();
+
         });
 
 
@@ -312,7 +345,7 @@ public class UIManager {
         lightXAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightXAxisSlider.getValue();
-                sc.getLight().setXPos(finalValue);
+                sc.getLight().setXPos(-finalValue);
                 renderer.render();
             }
         });
@@ -336,8 +369,7 @@ public class UIManager {
         shininessSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = shininessSlider.getValue();
-                defaultShininess = finalValue;
-                sc.setShininess(defaultShininess);
+                currentModel.setShininess(defaultShininess);
                 renderer.render();
             }
         });
@@ -375,6 +407,14 @@ public class UIManager {
         });
 
 
+    }
+
+    private ArrayList<SceneObject> getModelTriangles(File file, double scale, Vector offset){
+        return plyReader.readPLYFile(
+                file,
+                scale,
+                offset
+        );
     }
 }
 

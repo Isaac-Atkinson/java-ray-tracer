@@ -21,19 +21,11 @@ public class PLYReader {
      * Reads the contents of a PLY file and returns a list of primitives
      * extracted from the file.
      * @param file the file to read
-     * @param ambient the ambient colour to be applied to the primitives
-     * @param diffuse the diffuse colour to be applied to the primitives
-     * @param specular the specular colour to be applied to the primitives
-     * @param shininess the shininess coefficient to be applied to the primitives
      * @param scale the scale to be applied when transforming the vertex data
      * @param offset the offset to be applied when transforming the vertex data
      * @return a list of all the primitives extracted from the PLY file
      */
     public ArrayList<SceneObject> readPLYFile(File file,
-                                              Color ambient,
-                                              Color diffuse,
-                                              Color specular,
-                                              double shininess,
                                               double scale,
                                               Vector offset
                             ){
@@ -88,10 +80,6 @@ public class PLYReader {
                 int indexZ = Integer.parseInt(elements[3]);
 
                 Triangle triangle = new Triangle(vertices[indexX],vertices[indexY],vertices[indexZ]);
-                triangle.setAmbient(ambient);
-                triangle.setDiffuse(diffuse);
-                triangle.setSpecular(specular);
-                triangle.setShininess(shininess);
                 triangles.add(triangle);
             }
         } catch (IOException e){

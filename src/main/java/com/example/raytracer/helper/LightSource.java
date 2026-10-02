@@ -70,4 +70,8 @@ public class LightSource {
         pos.z = zPos;
     }
 
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
 }

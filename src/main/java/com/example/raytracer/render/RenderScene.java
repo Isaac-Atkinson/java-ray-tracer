@@ -42,16 +42,7 @@ public class RenderScene {
         return bvh.traverseBVH(ray);
     }
 
-    public Intersection closestHitNaive(Ray ray){
-        Intersection closest = new Intersection(null , Double.POSITIVE_INFINITY);
-        for(SceneObject object : objects){
-            Intersection hit = object.intersect(ray);
-            if(hit != null && hit.t < closest.t ){
-                closest = hit;
-            }
-        }
-        return closest;
-    }
+
 
     public LightSource getLight(){
         return light;
@@ -70,17 +61,12 @@ public class RenderScene {
         bvh.clearObjects();
     }
 
-    public void setShininess(double shininess){
-        for(SceneObject obj: objects){
-            obj.setShininess(shininess);
-        }
-    }
+
 
     private void initialiseScene(){
-        System.out.println("Called");
-        Vector lightPos = new Vector(0, 0, -300);
+        Vector lightPos = new Vector(0, 0, -800);
         Vector up = new Vector(0, 1, 0);
-        Vector right = new Vector(1, 0, -1);
+        Vector right = new Vector(1, 0, 0);
         light = new LightSource(
                 lightPos,
                 Color.color(1,1,1),
@@ -89,6 +75,7 @@ public class RenderScene {
                 right,
                 up
         );
+
 
         Color ambientRed = Color.color(0.1, 0, 0);
         Color diffuseRed = Color.color(1, 0, 0);
