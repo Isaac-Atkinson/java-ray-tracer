@@ -32,14 +32,23 @@ public class UIManager {
 
     Model currentModel;
 
+    private final Color defaultColor = Color.color(0.86,0.84,0.78);
+    private final double defaultShininess = 32;
+
+    private Color currentColor = defaultColor;
+    private double currentShininess = defaultShininess;
+
     private final Vector cameraLookAt = new Vector(0,0,0);
     private final double defaultRadius = 1000;
     private final double defaultYaw = 180;
     private final double defaultPitch = 0;
     private final double defaultFov = 80;
 
-    private final Color defaultColor = Color.color(0.86,0.84,0.78);
-    private final double defaultShininess = 32;
+
+
+    private final double defaultCameraX = 0;
+    private final double defaultCameraY = 0;
+    private final double defaultCameraZ = -400;
 
 
     public UIManager(Stage stage) {
@@ -176,6 +185,15 @@ public class UIManager {
                 sampleButtons
         );
 
+        //Initialise default controls
+
+        Button defaultSettingsButton = new Button("Default");
+
+        VBox defaultControls = new VBox(10,
+                new Label("Default Settings"),
+                defaultSettingsButton
+        );
+
 
 
 
@@ -189,7 +207,9 @@ public class UIManager {
                 new Separator(),
                 lightControls,
                 new Separator(),
-                sampleControls
+                sampleControls,
+                new Separator(),
+                defaultSettingsButton
         );
 
 
@@ -259,8 +279,8 @@ public class UIManager {
                         );
 
                 Model model = new Model(modelTriangles);
-                model.setColor(defaultColor);
-                model.setShininess(defaultShininess);
+                model.setColor(currentColor);
+                model.setShininess(currentShininess);
                 sc.addObjects(model.getTriangles());
 
                 currentModel = model;
@@ -288,8 +308,8 @@ public class UIManager {
                         );
 
                 Model model = new Model(modelTriangles);
-                model.setColor(defaultColor);
-                model.setShininess(defaultShininess);
+                model.setColor(currentColor);
+                model.setShininess(currentShininess);
                 sc.addObjects(model.getTriangles());
 
                 currentModel = model;
@@ -317,8 +337,8 @@ public class UIManager {
                         );
 
                 Model model = new Model(modelTriangles);
-                model.setColor(defaultColor);
-                model.setShininess(defaultShininess);
+                model.setColor(currentColor);
+                model.setShininess(currentShininess);
                 sc.addObjects(model.getTriangles());
 
                 currentModel = model;
@@ -366,6 +386,8 @@ public class UIManager {
 
             currentModel.setColor(color);
 
+            currentColor = color;
+
             renderer.render();
 
         });
@@ -374,6 +396,9 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = shininessSlider.getValue();
                 currentModel.setShininess(finalValue);
+
+                currentShininess = finalValue;
+
                 renderer.render();
             }
         });
@@ -424,6 +449,42 @@ public class UIManager {
         shadowQualityVeryHighButton.setOnAction(e -> {
             renderer.setShadowQualityVeryHigh();
             renderer.render();
+        });
+
+        //Default actions
+        defaultSettingsButton.setOnAction(e -> {
+            cameraPitchSlider.setValue(defaultPitch);
+            camera.setPitch(defaultPitch);
+
+            cameraYawSlider.setValue(defaultYaw);
+            camera.setYaw(defaultYaw);
+
+            cameraDistanceSlider.setValue(defaultRadius);
+            camera.setRadius(defaultRadius);
+
+            cameraFovSlider.setValue(defaultFov);
+            camera.setFov(defaultFov);
+
+            modelColorPicker.setValue(defaultColor);
+            currentModel.setColor(defaultColor);
+
+            shininessSlider.setValue(defaultShininess);
+            currentModel.setShininess(defaultShininess);
+
+            lightColorPicker.setValue(Color.WHITE);
+            sc.getLight().setColor(Color.WHITE);
+
+            lightXAxisSlider.setValue(defaultCameraX);
+            sc.getLight().setXPos(defaultCameraX);
+            lightYAxisSlider.setValue(defaultCameraY);
+            sc.getLight().setYPos(defaultCameraY);
+            lightZAxisSlider.setValue(defaultCameraZ);
+            sc.getLight().setZPos(defaultCameraZ);
+
+            renderer.setShadowQualityLow();
+
+            renderer.render();
+
         });
     }
 
