@@ -9,6 +9,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.DoubleConsumer;
 import java.util.stream.IntStream;
 
 /**
@@ -50,11 +52,13 @@ public class Renderer {
      * Loops through each pixel, traces a ray and computes the colour
      * for that pixel before writing the colour to the image.
      */
-    public void render() {
+    public void render(DoubleConsumer progressCallback) {
 
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
         Color[][] colors = new Color[height][width];
+
+        AtomicInteger rowsCompleted = new AtomicInteger(0);
 
         IntStream.range(0, height).parallel().forEach(y -> {
             for (int x = 0; x < image.getWidth(); x++) {
@@ -71,6 +75,10 @@ public class Renderer {
                         : backgroundColor;
 
             }
+
+            int count = rowsCompleted.incrementAndGet();
+
+            progressCallback.accept((double) count / height);
         });
 
         //write accumulated colours to the image

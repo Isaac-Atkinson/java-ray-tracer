@@ -117,7 +117,7 @@ public class UIManager {
                 cameraFovSlider);
 
         //Initialise model controls
-        Slider shininessSlider = new Slider(5, 100, defaultShininess);
+        Slider shininessSlider = new Slider(0, 100, defaultShininess);
         shininessSlider.setMajorTickUnit(1);
         shininessSlider.setMinorTickCount(0);
         shininessSlider.setSnapToTicks(true);
@@ -194,6 +194,14 @@ public class UIManager {
                 defaultSettingsButton
         );
 
+        //Initialise progress bar
+        ProgressBar renderProgressBar = new ProgressBar();
+        renderProgressBar.setVisible(false);
+        renderProgressBar.setPrefWidth(300);
+        renderProgressBar.setMaxWidth(Double.MAX_VALUE);
+
+
+
 
 
 
@@ -209,24 +217,10 @@ public class UIManager {
                 new Separator(),
                 sampleControls,
                 new Separator(),
-                defaultControls
+                defaultControls,
+                new Separator()
+
         );
-
-
-
-
-
-
-        //Load initial scene
-        File defaultScenefile = null;
-        try {
-            defaultScenefile = new File(getClass().getResource("/com/example/raytracer/models/bun_zipper.ply").toURI());
-        } catch (Exception ex) {
-            throw new RuntimeException("Model could not be loaded");
-        }
-        loadModelAndRender(defaultScenefile, 2600, new Vector(50,-250,0), controlsPanel);
-
-
 
 
 
@@ -234,11 +228,20 @@ public class UIManager {
 
         //Initialise JavaFX scene
         BorderPane root = new BorderPane();
-        root.setLeft(controlsPanel);
-        root.setRight(view);
 
-        GridPane.setHgrow(view, Priority.ALWAYS);
-        GridPane.setVgrow(view, Priority.ALWAYS);
+
+        VBox renderArea = new VBox();
+
+        VBox.setVgrow(view, Priority.ALWAYS);
+
+        renderArea.getChildren().addAll(
+                view,
+                renderProgressBar
+        );
+
+        root.setLeft(controlsPanel);
+        root.setRight(renderArea);
+
 
 
         Scene scene = new Scene(root);
@@ -255,7 +258,8 @@ public class UIManager {
                         .subtract(controlsPanel.widthProperty()));
 
         view.fitHeightProperty()
-                .bind(scene.heightProperty());
+                .bind(renderArea.heightProperty()
+                        .subtract(renderProgressBar.heightProperty()));
 
         controlsPanel.prefWidthProperty()
                 .bind(scene.widthProperty().multiply(0.3));
@@ -265,15 +269,26 @@ public class UIManager {
         stage.setScene(scene);
         stage.setMinWidth(900);
         stage.setMinHeight(650);
-        stage.setMaximized(true);
         stage.show();
 
 
 
 
+        //Load initial scene
+        File defaultScenefile = null;
+        try {
+            defaultScenefile = new File(getClass().getResource("/com/example/raytracer/models/bun_zipper.ply").toURI());
+        } catch (Exception ex) {
+            throw new RuntimeException("Model could not be loaded");
+        }
 
-
-
+        loadModelAndRender(
+                defaultScenefile,
+                2600,
+                new Vector(50,-250,0),
+                controlsPanel,
+                renderProgressBar
+        );
 
 
 
@@ -288,7 +303,13 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-            loadModelAndRender(file, 2600, new Vector(50,-250,0), controlsPanel);
+            loadModelAndRender(
+                    file,
+                    2600,
+                    new Vector(50,-250,0),
+                    controlsPanel,
+                    renderProgressBar
+            );
         });
 
         dragonButton.setOnAction(e -> {
@@ -300,7 +321,13 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-            loadModelAndRender(file,2800, new Vector(10,-300,0), controlsPanel);
+            loadModelAndRender(
+                    file,
+                    2600,
+                    new Vector(50,-250,0),
+                    controlsPanel,
+                    renderProgressBar
+            );
         });
 
         buddhaButton.setOnAction(e -> {
@@ -311,7 +338,13 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-            loadModelAndRender(file,2800, new Vector(0,-400,0), controlsPanel);
+            loadModelAndRender(
+                    file,
+                    2600,
+                    new Vector(50,-250,0),
+                    controlsPanel,
+                    renderProgressBar
+            );
         });
 
 
@@ -324,7 +357,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = cameraDistanceSlider.getValue();
                 camera.setRadius(finalValue);
-                startRender(controlsPanel);
+                startRender(controlsPanel, renderProgressBar);
             }
         });
 
@@ -332,7 +365,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = cameraYawSlider.getValue();
                 camera.setYaw(finalValue);
-                startRender(controlsPanel);
+                startRender(controlsPanel, renderProgressBar);
             }
         });
 
@@ -340,7 +373,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = cameraPitchSlider.getValue();
                 camera.setPitch(finalValue);
-                startRender(controlsPanel);
+                startRender(controlsPanel, renderProgressBar);
             }
         });
 
@@ -348,7 +381,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = cameraFovSlider.getValue();
                 camera.setFov(finalValue);
-                startRender(controlsPanel);
+                startRender(controlsPanel, renderProgressBar);
             }
         });
 
@@ -366,7 +399,7 @@ public class UIManager {
 
             currentColor = color;
 
-            startRender(controlsPanel);
+            startRender(controlsPanel, renderProgressBar);
 
         });
 
@@ -377,7 +410,7 @@ public class UIManager {
 
                 currentShininess = finalValue;
 
-                startRender(controlsPanel);
+                startRender(controlsPanel, renderProgressBar);
             }
         });
 
@@ -393,7 +426,7 @@ public class UIManager {
             Color color = lightColorPicker.getValue();
 
             renderScene.getLight().setColor(color);
-            startRender(controlsPanel);
+            startRender(controlsPanel, renderProgressBar);
         });
 
 
@@ -401,7 +434,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = lightXAxisSlider.getValue();
                 renderScene.getLight().setXPos(-finalValue);
-                startRender(controlsPanel);
+                startRender(controlsPanel, renderProgressBar);
             }
         });
 
@@ -409,7 +442,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = lightYAxisSlider.getValue();
                 renderScene.getLight().setYPos(finalValue);
-                startRender(controlsPanel);
+                startRender(controlsPanel, renderProgressBar);
             }
         });
 
@@ -417,7 +450,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = lightZAxisSlider.getValue();
                 renderScene.getLight().setZPos(finalValue);
-                startRender(controlsPanel);
+                startRender(controlsPanel, renderProgressBar);
             }
         });
 
@@ -431,15 +464,15 @@ public class UIManager {
         //shadow actions
         shadowQualityLowButton.setOnAction(e -> {
             renderer.setShadowQualityLow();
-            startRender(controlsPanel);
+            startRender(controlsPanel, renderProgressBar);
         });
         shadowQualityHighButton.setOnAction(e -> {
             renderer.setShadowQualityHigh();
-            startRender(controlsPanel);
+            startRender(controlsPanel, renderProgressBar);
         });
         shadowQualityVeryHighButton.setOnAction(e -> {
             renderer.setShadowQualityVeryHigh();
-            startRender(controlsPanel);
+            startRender(controlsPanel, renderProgressBar);
         });
 
 
@@ -480,8 +513,7 @@ public class UIManager {
 
             renderer.setShadowQualityLow();
 
-            startRender(controlsPanel);
-
+            startRender(controlsPanel, renderProgressBar);
         });
     }
 
@@ -490,23 +522,31 @@ public class UIManager {
 
 
 
-    private void startRender(VBox controlsPanel){
+    private void startRender(VBox controlsPanel, ProgressBar renderProgressBar) {
         Task<Void> renderTask = new Task<>() {
             @Override
             protected Void call() {
-                renderer.render();
+                renderer.render(progress -> updateProgress(progress, 1.0));
                 return null;
             }
         };
 
         controlsPanel.setDisable(true);
+        renderProgressBar.setVisible(true);
+        renderProgressBar.progressProperty().bind(renderTask.progressProperty());
 
         renderTask.setOnSucceeded(e -> {
             controlsPanel.setDisable(false);
+            renderProgressBar.setVisible(false);
+            renderProgressBar.progressProperty().unbind();
+            renderProgressBar.setProgress(0);
         });
 
         renderTask.setOnFailed(e -> {
             controlsPanel.setDisable(false);
+            renderProgressBar.setVisible(false);
+            renderProgressBar.progressProperty().unbind();
+            renderProgressBar.setProgress(0);
 
             renderTask.getException().printStackTrace();
         });
@@ -522,7 +562,8 @@ public class UIManager {
             File file,
             double scale,
             Vector position,
-            VBox controlsPanel) {
+            VBox controlsPanel,
+            ProgressBar renderProgressBar) {
 
         Task<Void> task = new Task<>() {
 
@@ -531,21 +572,28 @@ public class UIManager {
 
                 loadModel(file, scale, position);
 
-                renderer.render();
+                renderer.render(progress -> updateProgress(progress, 1.0));
 
                 return null;
             }
         };
 
         controlsPanel.setDisable(true);
+        renderProgressBar.setVisible(true);
+        renderProgressBar.progressProperty().bind(task.progressProperty());
 
         task.setOnSucceeded(e -> {
             controlsPanel.setDisable(false);
+            renderProgressBar.setVisible(false);
+            renderProgressBar.progressProperty().unbind();
+            renderProgressBar.setProgress(0);
         });
 
         task.setOnFailed(e -> {
-
             controlsPanel.setDisable(false);
+            renderProgressBar.setVisible(false);
+            renderProgressBar.progressProperty().unbind();
+            renderProgressBar.setProgress(0);
 
             task.getException().printStackTrace();
         });
