@@ -28,9 +28,9 @@ public class UIManager {
 
     private final Stage stage;
 
-    Model currentModel;
-
     private final PLYReader plyReader = new PLYReader();
+
+    Model currentModel;
 
     private final Vector cameraLookAt = new Vector(0,0,0);
     private final double defaultRadius = 1000;
@@ -53,6 +53,7 @@ public class UIManager {
         WritableImage image = new WritableImage(imageWidth, imageHeight);
         ImageView view = new ImageView(image);
 
+        //Initialise camera
         Camera camera = new Camera(
                 cameraLookAt,
                 defaultRadius,
@@ -89,49 +90,6 @@ public class UIManager {
                 modelButtons
         );
 
-        //Initialise light controls
-        Slider lightXAxisSlider = new Slider(-500, 500, 0);
-        lightXAxisSlider.setMajorTickUnit(1);
-        lightXAxisSlider.setMinorTickCount(0);
-        lightXAxisSlider.setSnapToTicks(true);
-
-        Slider lightYAxisSlider = new Slider(-500, 500, 0);
-        lightYAxisSlider.setMajorTickUnit(1);
-        lightYAxisSlider.setMinorTickCount(0);
-        lightYAxisSlider.setSnapToTicks(true);
-
-        Slider lightZAxisSlider = new Slider(-400, -100, -400);
-        lightZAxisSlider.setMajorTickUnit(1);
-        lightZAxisSlider.setMinorTickCount(0);
-        lightZAxisSlider.setSnapToTicks(true);
-
-        VBox lightControls = new VBox(10,
-                new Label("Light X Position"),
-                lightXAxisSlider,
-
-                new Label("Light Y Position"),
-                lightYAxisSlider,
-
-
-                new Label("Light Z Position"),
-                lightZAxisSlider
-        );
-
-        //Initialise model controls
-        Slider shininessSlider = new Slider(5, 100, defaultShininess);
-        shininessSlider.setMajorTickUnit(1);
-        shininessSlider.setMinorTickCount(0);
-        shininessSlider.setSnapToTicks(true);
-
-        ColorPicker modelColorPicker = new ColorPicker(defaultColor);
-
-        VBox materialControls = new VBox(10,
-                new Label("Model Material"),
-                new Label("Model Colour"),
-                modelColorPicker,
-                new Label("Shininess"),
-                shininessSlider);
-
         //Initialise camera controls
         Slider cameraDistanceSlider = new Slider(200,1000,defaultRadius);
         Slider cameraYawSlider = new Slider(-180,180,defaultYaw);
@@ -148,6 +106,56 @@ public class UIManager {
                 cameraDistanceSlider,
                 new Label("FOV"),
                 cameraFovSlider);
+
+        //Initialise model controls
+        Slider shininessSlider = new Slider(5, 100, defaultShininess);
+        shininessSlider.setMajorTickUnit(1);
+        shininessSlider.setMinorTickCount(0);
+        shininessSlider.setSnapToTicks(true);
+
+        ColorPicker modelColorPicker = new ColorPicker(defaultColor);
+
+        VBox materialControls = new VBox(10,
+                new Label("Model Material"),
+                new Label("Model Colour"),
+                modelColorPicker,
+                new Label("Shininess"),
+                shininessSlider);
+
+
+
+        //Initialise light controls
+
+        ColorPicker lightColorPicker = new ColorPicker(sc.getLight().getColor());
+
+        Slider lightXAxisSlider = new Slider(-500, 500, 0);
+        lightXAxisSlider.setMajorTickUnit(1);
+        lightXAxisSlider.setMinorTickCount(0);
+        lightXAxisSlider.setSnapToTicks(true);
+
+        Slider lightYAxisSlider = new Slider(-500, 500, 0);
+        lightYAxisSlider.setMajorTickUnit(1);
+        lightYAxisSlider.setMinorTickCount(0);
+        lightYAxisSlider.setSnapToTicks(true);
+
+        Slider lightZAxisSlider = new Slider(-400, -100, -400);
+        lightZAxisSlider.setMajorTickUnit(1);
+        lightZAxisSlider.setMinorTickCount(0);
+        lightZAxisSlider.setSnapToTicks(true);
+
+        VBox lightControls = new VBox(10,
+                new Label("Light colour"),
+                lightColorPicker,
+                new Label("Light X Position"),
+                lightXAxisSlider,
+
+                new Label("Light Y Position"),
+                lightYAxisSlider,
+
+
+                new Label("Light Z Position"),
+                lightZAxisSlider
+        );
 
 
         //Intialise shadow controls
@@ -175,13 +183,13 @@ public class UIManager {
                 new Separator(),
                 modelControls,
                 new Separator(),
-                lightControls,
-                new Separator(),
-                sampleControls,
+                cameraControls,
                 new Separator(),
                 materialControls,
                 new Separator(),
-                cameraControls
+                lightControls,
+                new Separator(),
+                sampleControls
         );
 
 
@@ -230,6 +238,8 @@ public class UIManager {
 
 
         //Initialise actions
+
+        //Scene loading actions
         bunnyButton.setOnAction(e -> {
             File file = null;
             try {
@@ -317,63 +327,7 @@ public class UIManager {
             }
         });
 
-        shadowQualityLowButton.setOnAction(e -> {
-            renderer.setShadowQualityLow();
-            renderer.render();
-        });
-        shadowQualityHighButton.setOnAction(e -> {
-            renderer.setShadowQualityHigh();
-            renderer.render();
-        });
-        shadowQualityVeryHighButton.setOnAction(e -> {
-            renderer.setShadowQualityVeryHigh();
-            renderer.render();
-        });
-
-        modelColorPicker.setOnAction(e -> {
-            Color color = modelColorPicker.getValue();
-
-            currentModel.setColor(color);
-
-            renderer.render();
-
-        });
-
-
-
-
-        lightXAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
-            if (!isChanging) {
-                double finalValue = lightXAxisSlider.getValue();
-                sc.getLight().setXPos(-finalValue);
-                renderer.render();
-            }
-        });
-
-        lightYAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
-            if (!isChanging) {
-                double finalValue = lightYAxisSlider.getValue();
-                sc.getLight().setYPos(finalValue);
-                renderer.render();
-            }
-        });
-
-        lightZAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
-            if (!isChanging) {
-                double finalValue = lightZAxisSlider.getValue();
-                sc.getLight().setZPos(finalValue);
-                renderer.render();
-            }
-        });
-
-        shininessSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
-            if (!isChanging) {
-                double finalValue = shininessSlider.getValue();
-                currentModel.setShininess(defaultShininess);
-                renderer.render();
-            }
-        });
-
+        //Camera actions
         cameraDistanceSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraDistanceSlider.getValue();
@@ -406,8 +360,80 @@ public class UIManager {
             }
         });
 
+        //model actions
+        modelColorPicker.setOnAction(e -> {
+            Color color = modelColorPicker.getValue();
 
+            currentModel.setColor(color);
+
+            renderer.render();
+
+        });
+
+        shininessSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                double finalValue = shininessSlider.getValue();
+                currentModel.setShininess(finalValue);
+                renderer.render();
+            }
+        });
+
+
+        //light actions
+        lightColorPicker.setOnAction(e -> {
+            Color color = lightColorPicker.getValue();
+
+            sc.getLight().setColor(color);
+            renderer.render();
+        });
+
+
+        lightXAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                double finalValue = lightXAxisSlider.getValue();
+                sc.getLight().setXPos(-finalValue);
+                renderer.render();
+            }
+        });
+
+        lightYAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                double finalValue = lightYAxisSlider.getValue();
+                sc.getLight().setYPos(finalValue);
+                renderer.render();
+            }
+        });
+
+        lightZAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                double finalValue = lightZAxisSlider.getValue();
+                sc.getLight().setZPos(finalValue);
+                renderer.render();
+            }
+        });
+
+        //shadow actions
+        shadowQualityLowButton.setOnAction(e -> {
+            renderer.setShadowQualityLow();
+            renderer.render();
+        });
+        shadowQualityHighButton.setOnAction(e -> {
+            renderer.setShadowQualityHigh();
+            renderer.render();
+        });
+        shadowQualityVeryHighButton.setOnAction(e -> {
+            renderer.setShadowQualityVeryHigh();
+            renderer.render();
+        });
     }
+
+
+
+
+
+
+
+
 
     private ArrayList<SceneObject> getModelTriangles(File file, double scale, Vector offset){
         return plyReader.readPLYFile(

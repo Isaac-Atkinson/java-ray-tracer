@@ -20,7 +20,7 @@ public class RenderScene {
     private ArrayList<SceneObject> objects = new ArrayList<>();
     public LightSource light;
 
-    private BVH bvh;
+    private final BVH bvh;
 
     public RenderScene(ArrayList<SceneObject> objects, LightSource light) {
         this.light = light;
@@ -50,7 +50,7 @@ public class RenderScene {
 
 
     public void addObjects(ArrayList<SceneObject> newObjects){
-        initialiseScene();
+        initialiseWalls();
         objects.addAll(newObjects);
         bvh.addObjects(objects);
         bvh.constructBVH();
@@ -64,6 +64,11 @@ public class RenderScene {
 
 
     private void initialiseScene(){
+        initialiseLight();
+        initialiseWalls();
+    }
+
+    private void initialiseLight(){
         Vector lightPos = new Vector(0, 0, -800);
         Vector up = new Vector(0, 1, 0);
         Vector right = new Vector(1, 0, 0);
@@ -75,14 +80,15 @@ public class RenderScene {
                 right,
                 up
         );
+    }
 
-
-        Color ambientRed = Color.color(0.1, 0, 0);
-        Color diffuseRed = Color.color(1, 0, 0);
-        Color ambientGreen = Color.color(0, 0.1, 0);
-        Color diffuseGreen = Color.color(0, 1, 1);
-        Color ambientBlue = Color.color(0, 0, 0.1);
-        Color diffuseBlue = Color.color(0, 0, 1);
+    private void initialiseWalls(){
+        Color ambientRed = Color.color(0.1, 0.02, 0.02);
+        Color diffuseRed = Color.color(1, 0.2, 0.2);
+        Color ambientGreen = Color.color(0.02, 0.1, 0.02);
+        Color diffuseGreen = Color.color(0.2, 1, 0.2);
+        Color ambientBlue = Color.color(0.02, 0.02, 0.1);
+        Color diffuseBlue = Color.color(0.2, 0.2, 1);
         Color specular = Color.color(0, 0, 0);
 
         // Back wall: z = 1600
@@ -150,5 +156,5 @@ public class RenderScene {
         ceiling.maxVals = new Vector(2000, 2000, 2000);
         ceiling.centre = new Vector(0, 2000, 0);
         objects.add(ceiling);
-}
+    }
 }

@@ -74,4 +74,8 @@ public class LightSource {
         this.color = color;
     }
 
+    public Color getColor() {
+        return color;
+    }
+
 }
