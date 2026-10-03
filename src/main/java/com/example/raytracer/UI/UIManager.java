@@ -4,6 +4,7 @@ import com.example.raytracer.geometry.Model;
 import com.example.raytracer.geometry.SceneObject;
 import com.example.raytracer.helper.Camera;
 import com.example.raytracer.helper.Vector;
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -58,8 +59,8 @@ public class UIManager {
     }
 
     private void initialise(){
-        stage.setTitle("Ray Tracer");
 
+        //Initialise image
         WritableImage image = new WritableImage(imageWidth, imageHeight);
         ImageView view = new ImageView(image);
 
@@ -72,23 +73,10 @@ public class UIManager {
                 defaultFov
         );
 
-
-
         //Initialise RenderScene and Renderer classes
         renderScene =  new RenderScene();
         renderer = new Renderer(image, camera, renderScene);
 
-        //Load initial scene
-        File defaultScenefile = null;
-        try {
-            defaultScenefile = new File(getClass().getResource("/com/example/raytracer/models/bun_zipper.ply").toURI());
-        } catch (Exception ex) {
-            throw new RuntimeException("Model could not be loaded");
-        }
-        loadModel(defaultScenefile, 2600, new Vector(50,-250,0));
-
-        //Render initial scene
-        renderer.render();
 
 
 
@@ -221,11 +209,30 @@ public class UIManager {
                 new Separator(),
                 sampleControls,
                 new Separator(),
-                defaultSettingsButton
+                defaultControls
         );
 
 
 
+
+
+
+        //Load initial scene
+        File defaultScenefile = null;
+        try {
+            defaultScenefile = new File(getClass().getResource("/com/example/raytracer/models/bun_zipper.ply").toURI());
+        } catch (Exception ex) {
+            throw new RuntimeException("Model could not be loaded");
+        }
+        loadModelAndRender(defaultScenefile, 2600, new Vector(50,-250,0), controlsPanel);
+
+
+
+
+
+
+
+        //Initialise JavaFX scene
         BorderPane root = new BorderPane();
         root.setLeft(controlsPanel);
         root.setRight(view);
@@ -234,7 +241,6 @@ public class UIManager {
         GridPane.setVgrow(view, Priority.ALWAYS);
 
 
-        //Initialise JavaFX scene
         Scene scene = new Scene(root);
 
         scene.getStylesheets().add(
@@ -254,6 +260,8 @@ public class UIManager {
         controlsPanel.prefWidthProperty()
                 .bind(scene.widthProperty().multiply(0.3));
 
+
+        stage.setTitle("Ray Tracer");
         stage.setScene(scene);
         stage.setMinWidth(900);
         stage.setMinHeight(650);
@@ -280,12 +288,11 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-            loadModel(file, 2600, new Vector(50,-250,0));
-
-            renderer.render();
+            loadModelAndRender(file, 2600, new Vector(50,-250,0), controlsPanel);
         });
 
         dragonButton.setOnAction(e -> {
+
             File file = null;
             try {
                 file = new File(getClass().getResource("/com/example/raytracer/models/dragon_vrip.ply").toURI());
@@ -293,9 +300,7 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-            loadModel(file, 2800, new Vector(10,-300,0));
-
-            renderer.render();
+            loadModelAndRender(file,2800, new Vector(10,-300,0), controlsPanel);
         });
 
         buddhaButton.setOnAction(e -> {
@@ -306,17 +311,20 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-            loadModel(file, 2800, new Vector(0,-400,0));
-
-            renderer.render();
+            loadModelAndRender(file,2800, new Vector(0,-400,0), controlsPanel);
         });
+
+
+
+
+
 
         //Camera actions
         cameraDistanceSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraDistanceSlider.getValue();
                 camera.setRadius(finalValue);
-                renderer.render();
+                startRender(controlsPanel);
             }
         });
 
@@ -324,7 +332,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = cameraYawSlider.getValue();
                 camera.setYaw(finalValue);
-                renderer.render();
+                startRender(controlsPanel);
             }
         });
 
@@ -332,7 +340,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = cameraPitchSlider.getValue();
                 camera.setPitch(finalValue);
-                renderer.render();
+                startRender(controlsPanel);
             }
         });
 
@@ -340,9 +348,15 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = cameraFovSlider.getValue();
                 camera.setFov(finalValue);
-                renderer.render();
+                startRender(controlsPanel);
             }
         });
+
+
+
+
+
+
 
         //model actions
         modelColorPicker.setOnAction(e -> {
@@ -352,7 +366,7 @@ public class UIManager {
 
             currentColor = color;
 
-            renderer.render();
+            startRender(controlsPanel);
 
         });
 
@@ -363,9 +377,15 @@ public class UIManager {
 
                 currentShininess = finalValue;
 
-                renderer.render();
+                startRender(controlsPanel);
             }
         });
+
+
+
+
+
+
 
 
         //light actions
@@ -373,7 +393,7 @@ public class UIManager {
             Color color = lightColorPicker.getValue();
 
             renderScene.getLight().setColor(color);
-            renderer.render();
+            startRender(controlsPanel);
         });
 
 
@@ -381,7 +401,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = lightXAxisSlider.getValue();
                 renderScene.getLight().setXPos(-finalValue);
-                renderer.render();
+                startRender(controlsPanel);
             }
         });
 
@@ -389,7 +409,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = lightYAxisSlider.getValue();
                 renderScene.getLight().setYPos(finalValue);
-                renderer.render();
+                startRender(controlsPanel);
             }
         });
 
@@ -397,23 +417,36 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = lightZAxisSlider.getValue();
                 renderScene.getLight().setZPos(finalValue);
-                renderer.render();
+                startRender(controlsPanel);
             }
         });
+
+
+
+
+
+
+
 
         //shadow actions
         shadowQualityLowButton.setOnAction(e -> {
             renderer.setShadowQualityLow();
-            renderer.render();
+            startRender(controlsPanel);
         });
         shadowQualityHighButton.setOnAction(e -> {
             renderer.setShadowQualityHigh();
-            renderer.render();
+            startRender(controlsPanel);
         });
         shadowQualityVeryHighButton.setOnAction(e -> {
             renderer.setShadowQualityVeryHigh();
-            renderer.render();
+            startRender(controlsPanel);
         });
+
+
+
+
+
+
 
         //Default actions
         defaultSettingsButton.setOnAction(e -> {
@@ -447,7 +480,7 @@ public class UIManager {
 
             renderer.setShadowQualityLow();
 
-            renderer.render();
+            startRender(controlsPanel);
 
         });
     }
@@ -455,8 +488,71 @@ public class UIManager {
 
 
 
-    private void initialiseActions(){
 
+
+    private void startRender(VBox controlsPanel){
+        Task<Void> renderTask = new Task<>() {
+            @Override
+            protected Void call() {
+                renderer.render();
+                return null;
+            }
+        };
+
+        controlsPanel.setDisable(true);
+
+        renderTask.setOnSucceeded(e -> {
+            controlsPanel.setDisable(false);
+        });
+
+        renderTask.setOnFailed(e -> {
+            controlsPanel.setDisable(false);
+
+            renderTask.getException().printStackTrace();
+        });
+
+
+
+        Thread thread = new Thread(renderTask);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void loadModelAndRender(
+            File file,
+            double scale,
+            Vector position,
+            VBox controlsPanel) {
+
+        Task<Void> task = new Task<>() {
+
+            @Override
+            protected Void call() {
+
+                loadModel(file, scale, position);
+
+                renderer.render();
+
+                return null;
+            }
+        };
+
+        controlsPanel.setDisable(true);
+
+        task.setOnSucceeded(e -> {
+            controlsPanel.setDisable(false);
+        });
+
+        task.setOnFailed(e -> {
+
+            controlsPanel.setDisable(false);
+
+            task.getException().printStackTrace();
+        });
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 
 

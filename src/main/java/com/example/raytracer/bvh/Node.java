@@ -26,7 +26,7 @@ public class Node {
     public Node(){}
 
     public Node( ArrayList<SceneObject> primitives ) {
-        this.primitives = primitives;
+        this.primitives = new ArrayList<>(primitives);
     }
 
     public void addObject(SceneObject object) {

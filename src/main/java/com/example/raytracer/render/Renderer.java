@@ -2,6 +2,7 @@ package com.example.raytracer.render;
 
 import com.example.raytracer.helper.*;
 import com.example.raytracer.geometry.SceneObject;
+import javafx.application.Platform;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -73,12 +74,16 @@ public class Renderer {
         });
 
         //write accumulated colours to the image
-        for(int y = 0; y < image.getHeight(); y++){
-            for(int x = 0; x < image.getWidth(); x++){
-                pixelWriter.setColor(x, y, colors[y][x]);
+        Platform.runLater(() -> {
+            for(int y = 0; y < image.getHeight(); y++){
+                for(int x = 0; x < image.getWidth(); x++){
+                    pixelWriter.setColor(x, y, colors[y][x]);
+                }
             }
-        }
+        });
     }
+
+
 
 
 
