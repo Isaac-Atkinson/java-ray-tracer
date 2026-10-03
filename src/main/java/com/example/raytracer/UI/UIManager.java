@@ -24,7 +24,8 @@ public class UIManager {
     int imageWidth = 1000;
     int imageHeight = 1000;
 
-    Renderer renderer;
+    private Renderer renderer;
+    private RenderScene renderScene;
 
     private final Stage stage;
 
@@ -74,8 +75,19 @@ public class UIManager {
 
 
         //Initialise RenderScene and Renderer classes
-        RenderScene sc =  new RenderScene();
-        renderer = new Renderer(image, camera, sc);
+        renderScene =  new RenderScene();
+        renderer = new Renderer(image, camera, renderScene);
+
+        //Load initial scene
+        File defaultScenefile = null;
+        try {
+            defaultScenefile = new File(getClass().getResource("/com/example/raytracer/models/bun_zipper.ply").toURI());
+        } catch (Exception ex) {
+            throw new RuntimeException("Model could not be loaded");
+        }
+        loadModel(defaultScenefile, 2600, new Vector(50,-250,0));
+
+        //Render initial scene
         renderer.render();
 
 
@@ -135,7 +147,7 @@ public class UIManager {
 
         //Initialise light controls
 
-        ColorPicker lightColorPicker = new ColorPicker(sc.getLight().getColor());
+        ColorPicker lightColorPicker = new ColorPicker(renderScene.getLight().getColor());
 
         Slider lightXAxisSlider = new Slider(-500, 500, 0);
         lightXAxisSlider.setMajorTickUnit(1);
@@ -268,25 +280,9 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-            sc.clearObjects();
+            loadModel(file, 2600, new Vector(50,-250,0));
 
-            if(file.exists()) {
-                ArrayList<SceneObject> modelTriangles =
-                        getModelTriangles(
-                                file,
-                                2600,
-                                new Vector(50, -250, 0)
-                        );
-
-                Model model = new Model(modelTriangles);
-                model.setColor(currentColor);
-                model.setShininess(currentShininess);
-                sc.addObjects(model.getTriangles());
-
-                currentModel = model;
-
-                renderer.render();
-            }
+            renderer.render();
         });
 
         dragonButton.setOnAction(e -> {
@@ -297,25 +293,9 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-            sc.clearObjects();
+            loadModel(file, 2800, new Vector(10,-300,0));
 
-            if (file.exists()) {
-                ArrayList<SceneObject> modelTriangles =
-                        getModelTriangles(
-                                file,
-                                2800,
-                                new Vector(10, -300, 0)
-                        );
-
-                Model model = new Model(modelTriangles);
-                model.setColor(currentColor);
-                model.setShininess(currentShininess);
-                sc.addObjects(model.getTriangles());
-
-                currentModel = model;
-
-                renderer.render();
-            }
+            renderer.render();
         });
 
         buddhaButton.setOnAction(e -> {
@@ -326,25 +306,9 @@ public class UIManager {
                 throw new RuntimeException("Model could not be loaded");
             }
 
-            sc.clearObjects();
+            loadModel(file, 2800, new Vector(0,-400,0));
 
-            if(file.exists()) {
-                ArrayList<SceneObject> modelTriangles =
-                        getModelTriangles(
-                                file,
-                                2800,
-                                new Vector(0, -400, 0)
-                        );
-
-                Model model = new Model(modelTriangles);
-                model.setColor(currentColor);
-                model.setShininess(currentShininess);
-                sc.addObjects(model.getTriangles());
-
-                currentModel = model;
-
-                renderer.render();
-            }
+            renderer.render();
         });
 
         //Camera actions
@@ -408,7 +372,7 @@ public class UIManager {
         lightColorPicker.setOnAction(e -> {
             Color color = lightColorPicker.getValue();
 
-            sc.getLight().setColor(color);
+            renderScene.getLight().setColor(color);
             renderer.render();
         });
 
@@ -416,7 +380,7 @@ public class UIManager {
         lightXAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightXAxisSlider.getValue();
-                sc.getLight().setXPos(-finalValue);
+                renderScene.getLight().setXPos(-finalValue);
                 renderer.render();
             }
         });
@@ -424,7 +388,7 @@ public class UIManager {
         lightYAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightYAxisSlider.getValue();
-                sc.getLight().setYPos(finalValue);
+                renderScene.getLight().setYPos(finalValue);
                 renderer.render();
             }
         });
@@ -432,7 +396,7 @@ public class UIManager {
         lightZAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightZAxisSlider.getValue();
-                sc.getLight().setZPos(finalValue);
+                renderScene.getLight().setZPos(finalValue);
                 renderer.render();
             }
         });
@@ -472,14 +436,14 @@ public class UIManager {
             currentModel.setShininess(defaultShininess);
 
             lightColorPicker.setValue(Color.WHITE);
-            sc.getLight().setColor(Color.WHITE);
+            renderScene.getLight().setColor(Color.WHITE);
 
             lightXAxisSlider.setValue(defaultCameraX);
-            sc.getLight().setXPos(defaultCameraX);
+            renderScene.getLight().setXPos(defaultCameraX);
             lightYAxisSlider.setValue(defaultCameraY);
-            sc.getLight().setYPos(defaultCameraY);
+            renderScene.getLight().setYPos(defaultCameraY);
             lightZAxisSlider.setValue(defaultCameraZ);
-            sc.getLight().setZPos(defaultCameraZ);
+            renderScene.getLight().setZPos(defaultCameraZ);
 
             renderer.setShadowQualityLow();
 
@@ -491,9 +455,31 @@ public class UIManager {
 
 
 
+    private void initialiseActions(){
+
+    }
 
 
 
+    private void loadModel(File file, double scale, Vector offset){
+        renderScene.clearObjects();
+
+        if(file.exists()) {
+            ArrayList<SceneObject> modelTriangles =
+                    getModelTriangles(
+                            file,
+                            scale,
+                            offset
+                    );
+
+            Model model = new Model(modelTriangles);
+            model.setColor(currentColor);
+            model.setShininess(currentShininess);
+            renderScene.addObjects(model.getTriangles());
+
+            currentModel = model;
+        }
+    }
 
 
     private ArrayList<SceneObject> getModelTriangles(File file, double scale, Vector offset){
