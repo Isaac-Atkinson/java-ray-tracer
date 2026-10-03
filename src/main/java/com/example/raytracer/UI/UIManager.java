@@ -26,6 +26,12 @@ public class UIManager {
 
     private int currentResolution = defaultResolution;
 
+    private final int movingResolution = 250;
+
+    private ImageView view;
+
+    private Camera camera;
+
     private Renderer renderer;
     private RenderScene renderScene;
 
@@ -51,6 +57,11 @@ public class UIManager {
     private final double defaultCameraY = 0;
     private final double defaultCameraZ = -400;
 
+    private boolean renderInProgress = false;
+    private boolean renderAgain = false;
+    private boolean pendingFinalRender = false;
+    private double requestedVal;
+
 
     public UIManager(Stage stage) {
         this.stage = stage;
@@ -61,10 +72,10 @@ public class UIManager {
 
         //Initialise image
         WritableImage image = new WritableImage(defaultResolution,defaultResolution);
-        ImageView view = new ImageView(image);
+        view = new ImageView(image);
 
         //Initialise camera
-        Camera camera = new Camera(
+        camera = new Camera(
                 cameraLookAt,
                 defaultRadius,
                 defaultYaw,
@@ -185,9 +196,9 @@ public class UIManager {
         );
 
         //Initialise resolution controls
-        Label resolutionLabel = new Label("Resolution:" + currentResolution);
+        Label resolutionLabel = new Label("Resolution:" + currentResolution + " x " + currentResolution);
 
-        Slider resolutionSlider = new Slider(100, 1000, defaultResolution);
+        Slider resolutionSlider = new Slider(300, 1000, defaultResolution);
 
         VBox resolutionControls = new VBox(10,
                 resolutionLabel,
@@ -367,33 +378,56 @@ public class UIManager {
         cameraDistanceSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraDistanceSlider.getValue();
-                camera.setRadius(finalValue);
-                startRender(controlsPanel, renderProgressBar);
+
+                requestRender(true, () -> camera.setRadius(finalValue), controlsPanel,  renderProgressBar);
             }
+        });
+
+        cameraDistanceSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
+            requestedVal = newValue.doubleValue();
+            requestRender(false, () -> camera.setRadius(requestedVal),  controlsPanel,  renderProgressBar);
         });
 
         cameraYawSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraYawSlider.getValue();
-                camera.setYaw(finalValue);
-                startRender(controlsPanel, renderProgressBar);
+
+                requestRender(true, () -> camera.setYaw(finalValue),  controlsPanel,  renderProgressBar);
             }
+        });
+
+        cameraYawSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
+            requestedVal = newValue.doubleValue();
+
+            requestRender(false, () -> camera.setYaw(requestedVal),   controlsPanel,  renderProgressBar);
         });
 
         cameraPitchSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraPitchSlider.getValue();
-                camera.setPitch(finalValue);
-                startRender(controlsPanel, renderProgressBar);
+
+                requestRender(true, () -> camera.setPitch(finalValue),   controlsPanel,  renderProgressBar);
             }
+        });
+
+        cameraPitchSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
+            requestedVal = newValue.doubleValue();
+
+            requestRender(false, () -> camera.setPitch(requestedVal), controlsPanel,  renderProgressBar);
         });
 
         cameraFovSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraFovSlider.getValue();
-                camera.setFov(finalValue);
-                startRender(controlsPanel, renderProgressBar);
+
+                requestRender(true, () -> camera.setFov(finalValue), controlsPanel,  renderProgressBar);
             }
+        });
+
+        cameraFovSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
+            requestedVal = newValue.doubleValue();
+
+            requestRender(false, () -> camera.setFov(requestedVal), controlsPanel,  renderProgressBar);
         });
 
 
@@ -432,6 +466,7 @@ public class UIManager {
 
 
 
+
         //light actions
         lightColorPicker.setOnAction(e -> {
             Color color = lightColorPicker.getValue();
@@ -444,25 +479,55 @@ public class UIManager {
         lightXAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightXAxisSlider.getValue();
-                renderScene.getLight().setXPos(-finalValue);
-                startRender(controlsPanel, renderProgressBar);
+
+                requestRender(true, () -> renderScene.getLight().setXPos(-finalValue), controlsPanel,  renderProgressBar);
             }
+        });
+
+        lightXAxisSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (!lightXAxisSlider.isValueChanging()) {
+                return;
+            }
+
+            requestedVal = newValue.doubleValue();
+
+            requestRender(false, () -> renderScene.getLight().setXPos(-requestedVal), controlsPanel,  renderProgressBar);
         });
 
         lightYAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightYAxisSlider.getValue();
-                renderScene.getLight().setYPos(finalValue);
-                startRender(controlsPanel, renderProgressBar);
+
+                requestRender(true, () -> renderScene.getLight().setYPos(finalValue), controlsPanel,  renderProgressBar);
             }
+        });
+
+        lightYAxisSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (!lightYAxisSlider.isValueChanging()) {
+                return;
+            }
+
+            requestedVal = newValue.doubleValue();
+
+            requestRender(false, () -> renderScene.getLight().setYPos(requestedVal), controlsPanel,  renderProgressBar);
         });
 
         lightZAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightZAxisSlider.getValue();
-                renderScene.getLight().setZPos(finalValue);
-                startRender(controlsPanel, renderProgressBar);
+
+                requestRender(true,  () -> renderScene.getLight().setZPos(finalValue), controlsPanel,  renderProgressBar);
             }
+        });
+
+        lightZAxisSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (!lightZAxisSlider.isValueChanging()) {
+                return;
+            }
+
+            requestedVal = newValue.doubleValue();
+
+            requestRender(false, () -> renderScene.getLight().setZPos(requestedVal), controlsPanel,  renderProgressBar);
         });
 
 
@@ -496,7 +561,7 @@ public class UIManager {
                 renderer.setWritableImage(newImage);
 
                 currentResolution = (int) finalValue;
-                resolutionLabel.setText("Resolution: " + currentResolution);
+                resolutionLabel.setText("Resolution: " + currentResolution + " x " + currentResolution);
 
                 startRender(controlsPanel, renderProgressBar);
             }
@@ -542,11 +607,11 @@ public class UIManager {
 
             resolutionSlider.setValue(defaultResolution);
             currentResolution = defaultResolution;
-            resolutionLabel.setText("Resolution: " + currentResolution);
+            resolutionLabel.setText("Resolution: " + currentResolution + " x " + currentResolution);
 
             renderer.setShadowQualityLow();
 
-            startRender(controlsPanel, renderProgressBar);
+            requestRender(true, () -> {}, controlsPanel, renderProgressBar);
         });
     }
 
@@ -656,6 +721,99 @@ public class UIManager {
 
             currentModel = model;
         }
+    }
+
+    private void requestRender(boolean finalRender, Runnable update, VBox controlsPanel, ProgressBar renderProgressBar) {
+        if(renderInProgress){
+            renderAgain = true;
+
+            if(finalRender){
+                pendingFinalRender = true;
+            }
+            return;
+        }
+
+
+        renderInProgress = true;
+
+        Runnable pendingCameraUpdate = update;
+
+        WritableImage img;
+        if(finalRender){
+            img = new WritableImage(currentResolution, currentResolution);
+        } else {
+            img = new WritableImage(movingResolution, movingResolution);
+        }
+
+        renderer.setWritableImage(img);
+
+
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                update.run();
+
+                if (finalRender) {
+                    renderer.render(progress -> updateProgress(progress, 1.0));
+                } else {
+                    renderer.render();
+                }
+
+                return null;
+            }
+        };
+
+        if (finalRender) {
+            controlsPanel.setDisable(true);
+
+            renderProgressBar.setVisible(true);
+            renderProgressBar.progressProperty()
+                    .bind(task.progressProperty());
+        }
+
+        task.setOnSucceeded(e -> {
+            view.setImage(img);
+
+            renderInProgress = false;
+
+            if (finalRender) {
+                controlsPanel.setDisable(false);
+
+                renderProgressBar.setVisible(false);
+                renderProgressBar.progressProperty().unbind();
+                renderProgressBar.setProgress(0);
+            }
+
+            if(pendingFinalRender){
+                pendingFinalRender = false;
+                renderAgain = false;
+
+                requestRender(true, pendingCameraUpdate, controlsPanel, renderProgressBar);
+            } else if(renderAgain){
+                renderAgain = false;
+                requestRender(false, pendingCameraUpdate, controlsPanel, renderProgressBar);
+            }
+        });
+
+        task.setOnFailed(e -> {
+
+            if (finalRender) {
+                controlsPanel.setDisable(false);
+
+                renderProgressBar.setVisible(false);
+                renderProgressBar.progressProperty().unbind();
+                renderProgressBar.setProgress(0);
+            }
+
+            renderInProgress = false;
+
+            task.getException().printStackTrace();
+        });
+
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 
 

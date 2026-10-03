@@ -91,6 +91,10 @@ public class Renderer {
         });
     }
 
+    public void render(){
+        render(progressCallback -> {});
+    }
+
 
 
 
