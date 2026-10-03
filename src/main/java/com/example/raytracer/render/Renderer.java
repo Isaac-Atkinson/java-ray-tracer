@@ -29,9 +29,9 @@ public class Renderer {
     private final RenderScene renderScene;
 
     //The JavaFX image
-    private final WritableImage image;
+    private WritableImage image;
     //The image writer
-    PixelWriter pixelWriter;
+    private PixelWriter pixelWriter;
 
     //The shadow sample count
     private int sampleCount = 1;
@@ -317,6 +317,11 @@ public class Renderer {
 
     public void setShadowQualityVeryHigh(){
         sampleCount = 64;
+    }
+
+    public void setWritableImage(WritableImage image){
+        this.image = image;
+        pixelWriter = image.getPixelWriter();
     }
 
 

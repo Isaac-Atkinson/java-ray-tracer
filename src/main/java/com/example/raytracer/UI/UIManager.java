@@ -22,8 +22,9 @@ import java.util.ArrayList;
 
 public class UIManager {
 
-    int imageWidth = 1000;
-    int imageHeight = 1000;
+    private final int defaultResolution = 500;
+
+    private int currentResolution = defaultResolution;
 
     private Renderer renderer;
     private RenderScene renderScene;
@@ -46,8 +47,6 @@ public class UIManager {
     private final double defaultPitch = 0;
     private final double defaultFov = 80;
 
-
-
     private final double defaultCameraX = 0;
     private final double defaultCameraY = 0;
     private final double defaultCameraZ = -400;
@@ -61,7 +60,7 @@ public class UIManager {
     private void initialise(){
 
         //Initialise image
-        WritableImage image = new WritableImage(imageWidth, imageHeight);
+        WritableImage image = new WritableImage(defaultResolution,defaultResolution);
         ImageView view = new ImageView(image);
 
         //Initialise camera
@@ -185,6 +184,16 @@ public class UIManager {
                 sampleButtons
         );
 
+        //Initialise resolution controls
+        Label resolutionLabel = new Label("Resolution:" + currentResolution);
+
+        Slider resolutionSlider = new Slider(100, 1000, defaultResolution);
+
+        VBox resolutionControls = new VBox(10,
+                resolutionLabel,
+                resolutionSlider
+        );
+
         //Initialise default controls
 
         Button defaultSettingsButton = new Button("Default");
@@ -216,6 +225,8 @@ public class UIManager {
                 lightControls,
                 new Separator(),
                 sampleControls,
+                new Separator(),
+                resolutionControls,
                 new Separator(),
                 defaultControls,
                 new Separator()
@@ -475,6 +486,22 @@ public class UIManager {
             startRender(controlsPanel, renderProgressBar);
         });
 
+        //Resolution actions
+        resolutionSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) {
+                double finalValue = resolutionSlider.getValue();
+
+                WritableImage newImage = new WritableImage((int) finalValue, (int) finalValue);
+                view.setImage(newImage);
+                renderer.setWritableImage(newImage);
+
+                currentResolution = (int) finalValue;
+                resolutionLabel.setText("Resolution: " + currentResolution);
+
+                startRender(controlsPanel, renderProgressBar);
+            }
+        });
+
 
 
 
@@ -497,9 +524,11 @@ public class UIManager {
 
             modelColorPicker.setValue(defaultColor);
             currentModel.setColor(defaultColor);
+            currentColor = defaultColor;
 
             shininessSlider.setValue(defaultShininess);
             currentModel.setShininess(defaultShininess);
+            currentShininess = defaultShininess;
 
             lightColorPicker.setValue(Color.WHITE);
             renderScene.getLight().setColor(Color.WHITE);
@@ -510,6 +539,10 @@ public class UIManager {
             renderScene.getLight().setYPos(defaultCameraY);
             lightZAxisSlider.setValue(defaultCameraZ);
             renderScene.getLight().setZPos(defaultCameraZ);
+
+            resolutionSlider.setValue(defaultResolution);
+            currentResolution = defaultResolution;
+            resolutionLabel.setText("Resolution: " + currentResolution);
 
             renderer.setShadowQualityLow();
 
