@@ -48,7 +48,7 @@ public class UIManager {
     private double currentShininess = defaultShininess;
 
     private final Vector cameraLookAt = new Vector(0,0,0);
-    private final double defaultRadius = 1000;
+    private final double defaultRadius = 600;
     private final double defaultYaw = 180;
     private final double defaultPitch = 0;
     private final double defaultFov = 80;
@@ -62,6 +62,9 @@ public class UIManager {
     private boolean pendingFinalRender = false;
     private double requestedVal;
 
+    private final String BUNNY_FILE = "/com/example/raytracer/models/bun_zipper.ply";
+    private final String DRAGON_FILE = "/com/example/raytracer/models/dragon_vrip.ply";
+    private final String BUDDHA_FILE = "/com/example/raytracer/models/happy_vrip.ply";
 
     public UIManager(Stage stage) {
         this.stage = stage;
@@ -95,38 +98,52 @@ public class UIManager {
 
 
         //Initialise scene loading controls
-        Button bunnyButton = new Button("Bunny");
-        Button dragonButton = new Button("Dragon");
-        Button buddhaButton = new Button("Buddha");
 
-        HBox modelButtons = new HBox(10,
-                bunnyButton,
-                dragonButton,
-                buddhaButton);
+        ComboBox<String> modelSelector = new ComboBox<>();
 
-        VBox modelControls = new VBox(10,
-                new Label("Model"),
-                modelButtons
+        modelSelector.getItems().addAll(
+                "Bunny",
+                "Dragon",
+                "Buddha"
         );
+
+        modelSelector.setValue("Bunny");
+        modelSelector.setMaxWidth(Double.MAX_VALUE);
+
+        Label modelTitle = new Label("Model");
+        modelTitle.getStyleClass().add("section-title");
+
+        VBox modelSection = new VBox(6);
+        modelSection.getChildren().addAll(
+                modelTitle,
+                modelSelector
+        );
+
+        modelSection.getStyleClass().add("controls-section");
 
         //Initialise camera controls
         Slider cameraDistanceSlider = new Slider(200,1000,defaultRadius);
-        Slider cameraYawSlider = new Slider(-180,180,defaultYaw);
+        Slider cameraYawSlider = new Slider(0,360,defaultYaw);
         Slider cameraPitchSlider = new Slider(-89,89,defaultPitch);
         Slider cameraFovSlider = new Slider(20,100,defaultFov);
 
-        VBox cameraControls = new VBox(10,
-                new Label("Camera Controls"),
-                new Label("X"),
+        Label cameraTitle = new Label("Camera Controls");
+        cameraTitle.getStyleClass().add("section-title");
+
+        VBox cameraSection = new VBox(10,
+                cameraTitle,
+                new Label("Yaw"),
                 cameraYawSlider,
-                new Label("Y"),
+                new Label("Pitch"),
                 cameraPitchSlider,
                 new Label("Distance"),
                 cameraDistanceSlider,
                 new Label("FOV"),
                 cameraFovSlider);
 
-        //Initialise model controls
+        cameraSection.getStyleClass().add("controls-section");
+
+        //Initialise material controls
         Slider shininessSlider = new Slider(0, 100, defaultShininess);
         shininessSlider.setMajorTickUnit(1);
         shininessSlider.setMinorTickCount(0);
@@ -134,12 +151,19 @@ public class UIManager {
 
         ColorPicker modelColorPicker = new ColorPicker(defaultColor);
 
-        VBox materialControls = new VBox(10,
-                new Label("Model Material"),
+        Label materialTitle = new Label("Material Controls");
+        materialTitle.getStyleClass().add("section-title");
+
+        VBox materialSection = new VBox(10,
+                materialTitle,
                 new Label("Model Colour"),
                 modelColorPicker,
                 new Label("Shininess"),
                 shininessSlider);
+
+        materialSection.getStyleClass().add("controls-section");
+
+
 
 
 
@@ -147,22 +171,26 @@ public class UIManager {
 
         ColorPicker lightColorPicker = new ColorPicker(renderScene.getLight().getColor());
 
-        Slider lightXAxisSlider = new Slider(-500, 500, 0);
+        Slider lightXAxisSlider = new Slider(-1000, 1000, 0);
         lightXAxisSlider.setMajorTickUnit(1);
         lightXAxisSlider.setMinorTickCount(0);
         lightXAxisSlider.setSnapToTicks(true);
 
-        Slider lightYAxisSlider = new Slider(-500, 500, 0);
+        Slider lightYAxisSlider = new Slider(-1000, 1000, 0);
         lightYAxisSlider.setMajorTickUnit(1);
         lightYAxisSlider.setMinorTickCount(0);
         lightYAxisSlider.setSnapToTicks(true);
 
-        Slider lightZAxisSlider = new Slider(-400, -100, -400);
+        Slider lightZAxisSlider = new Slider(-1000, -200, -400);
         lightZAxisSlider.setMajorTickUnit(1);
         lightZAxisSlider.setMinorTickCount(0);
         lightZAxisSlider.setSnapToTicks(true);
 
-        VBox lightControls = new VBox(10,
+        Label lightTitle = new Label("Light Controls");
+        lightTitle.getStyleClass().add("section-title");
+
+        VBox lightSection = new VBox(10,
+                lightTitle,
                 new Label("Light colour"),
                 lightColorPicker,
                 new Label("Light X Position"),
@@ -176,6 +204,8 @@ public class UIManager {
                 lightZAxisSlider
         );
 
+        lightSection.getStyleClass().add("controls-section");
+
 
         //Intialise shadow controls
         Button shadowQualityLowButton = new Button("Low");
@@ -183,40 +213,59 @@ public class UIManager {
         Button shadowQualityVeryHighButton = new Button("Very High");
 
 
-        Label sampleCountLabel = new Label("Shadow quality");
+        Label shadowTitle = new Label("Shadow quality");
+        shadowTitle.getStyleClass().add("section-title");
 
         HBox sampleButtons = new HBox(10,
                 shadowQualityLowButton,
                 shadowQualityHighButton,
                 shadowQualityVeryHighButton);
 
-        VBox sampleControls = new VBox(10,
-                sampleCountLabel,
+        VBox shadowSection = new VBox(10,
+                shadowTitle,
                 sampleButtons
         );
 
+        shadowSection.getStyleClass().add("controls-section");
+
         //Initialise resolution controls
-        Label resolutionLabel = new Label("Resolution:" + currentResolution + " x " + currentResolution);
-
-        Slider resolutionSlider = new Slider(300, 1000, defaultResolution);
-
-        VBox resolutionControls = new VBox(10,
-                resolutionLabel,
-                resolutionSlider
+        ComboBox<String> resolutionSelector = new ComboBox<>();
+        resolutionSelector.getItems().addAll(
+                "300 x 300",
+                "500 x 500",
+                "750 x 750",
+                "1000 x 1000"
         );
+
+        resolutionSelector.setValue("500 x 500");
+
+        Label resolutionTitle = new Label("Resolution");
+        resolutionTitle.getStyleClass().add("section-title");
+
+        VBox resolutionSection = new VBox(10,
+                resolutionTitle,
+                resolutionSelector
+        );
+
+        resolutionSection.getStyleClass().add("controls-section");
 
         //Initialise default controls
 
         Button defaultSettingsButton = new Button("Default");
 
-        VBox defaultControls = new VBox(10,
-                new Label("Default Settings"),
+        Label defaultSettingsTitle = new Label("Default Settings");
+        defaultSettingsTitle.getStyleClass().add("section-title");
+
+        VBox defaultSection = new VBox(10,
+                defaultSettingsTitle,
                 defaultSettingsButton
         );
 
+        defaultSection.getStyleClass().add("controls-section");
+
         //Initialise progress bar
         ProgressBar renderProgressBar = new ProgressBar();
-        renderProgressBar.setVisible(false);
+        //renderProgressBar.setVisible(false);
         renderProgressBar.setPrefWidth(300);
         renderProgressBar.setMaxWidth(Double.MAX_VALUE);
 
@@ -225,24 +274,55 @@ public class UIManager {
 
 
 
-        VBox controlsPanel = new VBox(15,
-                new Separator(),
-                modelControls,
-                new Separator(),
-                cameraControls,
-                new Separator(),
-                materialControls,
-                new Separator(),
-                lightControls,
-                new Separator(),
-                sampleControls,
-                new Separator(),
-                resolutionControls,
-                new Separator(),
-                defaultControls,
-                new Separator()
 
+        VBox leftControlsPanel = new VBox(15,
+
+                modelSection,
+
+                cameraSection,
+
+                lightSection,
+
+                materialSection
         );
+
+        leftControlsPanel.getStyleClass().add("controls-panel");
+
+        leftControlsPanel.setPrefWidth(300);
+        leftControlsPanel.setMinWidth(280);
+        leftControlsPanel.setMaxWidth(340);
+
+        VBox.setVgrow(modelSection, Priority.ALWAYS);
+        VBox.setVgrow(cameraSection, Priority.ALWAYS);
+        VBox.setVgrow(lightSection, Priority.ALWAYS);
+        VBox.setVgrow(materialSection, Priority.ALWAYS);
+
+        modelSection.setMaxHeight(Double.MAX_VALUE);
+        cameraSection.setMaxHeight(Double.MAX_VALUE);
+        lightSection.setMaxHeight(Double.MAX_VALUE);
+        materialSection.setMaxHeight(Double.MAX_VALUE);
+
+        HBox bottomControlsPanel = new HBox(15,
+
+                shadowSection,
+
+                resolutionSection,
+
+                defaultSection
+        );
+
+        bottomControlsPanel.getStyleClass().add("controls-panel");
+
+        bottomControlsPanel.setMaxHeight(Double.MAX_VALUE);
+
+        HBox.setHgrow(shadowSection, Priority.ALWAYS);
+        HBox.setHgrow(resolutionSection, Priority.ALWAYS);
+        HBox.setHgrow(defaultSection, Priority.ALWAYS);
+
+        shadowSection.setMaxWidth(Double.MAX_VALUE);
+        resolutionSection.setMaxWidth(Double.MAX_VALUE);
+        defaultSection.setMaxWidth(Double.MAX_VALUE);
+
 
 
 
@@ -261,8 +341,19 @@ public class UIManager {
                 renderProgressBar
         );
 
-        root.setLeft(controlsPanel);
-        root.setRight(renderArea);
+
+        VBox rightSide = new VBox();
+
+        VBox.setVgrow(renderArea, Priority.ALWAYS);
+
+        rightSide.getChildren().addAll(
+                renderArea,
+                bottomControlsPanel
+        );
+
+        root.setLeft(leftControlsPanel);
+        root.setCenter(rightSide);
+
 
 
 
@@ -276,39 +367,32 @@ public class UIManager {
         view.setSmooth(true);
 
         view.fitWidthProperty()
-                .bind(scene.widthProperty()
-                        .subtract(controlsPanel.widthProperty()));
+                .bind(renderArea.widthProperty());
 
         view.fitHeightProperty()
                 .bind(renderArea.heightProperty()
                         .subtract(renderProgressBar.heightProperty()));
 
-        controlsPanel.prefWidthProperty()
-                .bind(scene.widthProperty().multiply(0.3));
+
+
 
 
         stage.setTitle("Ray Tracer");
         stage.setScene(scene);
-        stage.setMinWidth(900);
-        stage.setMinHeight(650);
+        stage.setMinWidth(1010);
+        stage.setMinHeight(890);
+        stage.setResizable(false);
         stage.show();
 
 
 
 
         //Load initial scene
-        File defaultScenefile = null;
-        try {
-            defaultScenefile = new File(getClass().getResource("/com/example/raytracer/models/bun_zipper.ply").toURI());
-        } catch (Exception ex) {
-            throw new RuntimeException("Model could not be loaded");
-        }
-
         loadModelAndRender(
-                defaultScenefile,
+                BUNNY_FILE,
                 2600,
                 new Vector(50,-250,0),
-                controlsPanel,
+                leftControlsPanel,
                 renderProgressBar
         );
 
@@ -317,61 +401,43 @@ public class UIManager {
         //Initialise actions
 
         //Scene loading actions
-        bunnyButton.setOnAction(e -> {
-            File file = null;
-            try {
-                file = new File(getClass().getResource("/com/example/raytracer/models/bun_zipper.ply").toURI());
-            } catch (Exception ex) {
-                throw new RuntimeException("Model could not be loaded");
+
+        modelSelector.setOnAction(event -> {
+            String selectedModel = modelSelector.getValue();
+
+            switch (selectedModel) {
+                case "Bunny" -> {
+                    loadModelAndRender(
+                            BUNNY_FILE,
+                            2600,
+                            new Vector(50,-250,0),
+                            leftControlsPanel,
+                            renderProgressBar
+                    );
+                }
+
+                case "Dragon" -> {
+                    loadModelAndRender(
+                            DRAGON_FILE,
+                            2600,
+                            new Vector(50,-250,0),
+                            leftControlsPanel,
+                            renderProgressBar
+                    );
+                }
+
+                case "Buddha" -> {
+                    loadModelAndRender(
+                            BUDDHA_FILE,
+                            2600,
+                            new Vector(50,-250,0),
+                            leftControlsPanel,
+                            renderProgressBar
+                    );
+                }
             }
 
-            loadModelAndRender(
-                    file,
-                    2600,
-                    new Vector(50,-250,0),
-                    controlsPanel,
-                    renderProgressBar
-            );
         });
-
-        dragonButton.setOnAction(e -> {
-
-            File file = null;
-            try {
-                file = new File(getClass().getResource("/com/example/raytracer/models/dragon_vrip.ply").toURI());
-            } catch (Exception ex) {
-                throw new RuntimeException("Model could not be loaded");
-            }
-
-            loadModelAndRender(
-                    file,
-                    2600,
-                    new Vector(50,-250,0),
-                    controlsPanel,
-                    renderProgressBar
-            );
-        });
-
-        buddhaButton.setOnAction(e -> {
-            File file = null;
-            try {
-                file = new File(getClass().getResource("/com/example/raytracer/models/happy_vrip.ply").toURI());
-            } catch (Exception ex) {
-                throw new RuntimeException("Model could not be loaded");
-            }
-
-            loadModelAndRender(
-                    file,
-                    2600,
-                    new Vector(50,-250,0),
-                    controlsPanel,
-                    renderProgressBar
-            );
-        });
-
-
-
-
 
 
         //Camera actions
@@ -379,55 +445,55 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = cameraDistanceSlider.getValue();
 
-                requestRender(true, () -> camera.setRadius(finalValue), controlsPanel,  renderProgressBar);
+                requestRender(true, () -> camera.setRadius(finalValue), leftControlsPanel,  renderProgressBar);
             }
         });
 
         cameraDistanceSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
             requestedVal = newValue.doubleValue();
-            requestRender(false, () -> camera.setRadius(requestedVal),  controlsPanel,  renderProgressBar);
+            requestRender(false, () -> camera.setRadius(requestedVal), leftControlsPanel,  renderProgressBar);
         });
 
         cameraYawSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraYawSlider.getValue();
 
-                requestRender(true, () -> camera.setYaw(finalValue),  controlsPanel,  renderProgressBar);
+                requestRender(true, () -> camera.setYaw(finalValue), leftControlsPanel,  renderProgressBar);
             }
         });
 
         cameraYawSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> camera.setYaw(requestedVal),   controlsPanel,  renderProgressBar);
+            requestRender(false, () -> camera.setYaw(requestedVal), leftControlsPanel,  renderProgressBar);
         });
 
         cameraPitchSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraPitchSlider.getValue();
 
-                requestRender(true, () -> camera.setPitch(finalValue),   controlsPanel,  renderProgressBar);
+                requestRender(true, () -> camera.setPitch(finalValue), leftControlsPanel,  renderProgressBar);
             }
         });
 
         cameraPitchSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> camera.setPitch(requestedVal), controlsPanel,  renderProgressBar);
+            requestRender(false, () -> camera.setPitch(requestedVal), leftControlsPanel,  renderProgressBar);
         });
 
         cameraFovSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraFovSlider.getValue();
 
-                requestRender(true, () -> camera.setFov(finalValue), controlsPanel,  renderProgressBar);
+                requestRender(true, () -> camera.setFov(finalValue), leftControlsPanel,  renderProgressBar);
             }
         });
 
         cameraFovSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> camera.setFov(requestedVal), controlsPanel,  renderProgressBar);
+            requestRender(false, () -> camera.setFov(requestedVal), leftControlsPanel,  renderProgressBar);
         });
 
 
@@ -444,7 +510,7 @@ public class UIManager {
 
             currentColor = color;
 
-            startRender(controlsPanel, renderProgressBar);
+            startRender(leftControlsPanel, renderProgressBar);
 
         });
 
@@ -455,7 +521,7 @@ public class UIManager {
 
                 currentShininess = finalValue;
 
-                startRender(controlsPanel, renderProgressBar);
+                startRender(leftControlsPanel, renderProgressBar);
             }
         });
 
@@ -472,7 +538,7 @@ public class UIManager {
             Color color = lightColorPicker.getValue();
 
             renderScene.getLight().setColor(color);
-            startRender(controlsPanel, renderProgressBar);
+            startRender(leftControlsPanel, renderProgressBar);
         });
 
 
@@ -480,7 +546,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = lightXAxisSlider.getValue();
 
-                requestRender(true, () -> renderScene.getLight().setXPos(-finalValue), controlsPanel,  renderProgressBar);
+                requestRender(true, () -> renderScene.getLight().setXPos(-finalValue), leftControlsPanel,  renderProgressBar);
             }
         });
 
@@ -491,14 +557,14 @@ public class UIManager {
 
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> renderScene.getLight().setXPos(-requestedVal), controlsPanel,  renderProgressBar);
+            requestRender(false, () -> renderScene.getLight().setXPos(-requestedVal), leftControlsPanel,  renderProgressBar);
         });
 
         lightYAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightYAxisSlider.getValue();
 
-                requestRender(true, () -> renderScene.getLight().setYPos(finalValue), controlsPanel,  renderProgressBar);
+                requestRender(true, () -> renderScene.getLight().setYPos(finalValue), leftControlsPanel,  renderProgressBar);
             }
         });
 
@@ -509,14 +575,14 @@ public class UIManager {
 
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> renderScene.getLight().setYPos(requestedVal), controlsPanel,  renderProgressBar);
+            requestRender(false, () -> renderScene.getLight().setYPos(requestedVal), leftControlsPanel,  renderProgressBar);
         });
 
         lightZAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightZAxisSlider.getValue();
 
-                requestRender(true,  () -> renderScene.getLight().setZPos(finalValue), controlsPanel,  renderProgressBar);
+                requestRender(true,  () -> renderScene.getLight().setZPos(finalValue), leftControlsPanel,  renderProgressBar);
             }
         });
 
@@ -527,7 +593,7 @@ public class UIManager {
 
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> renderScene.getLight().setZPos(requestedVal), controlsPanel,  renderProgressBar);
+            requestRender(false, () -> renderScene.getLight().setZPos(requestedVal), leftControlsPanel,  renderProgressBar);
         });
 
 
@@ -540,30 +606,41 @@ public class UIManager {
         //shadow actions
         shadowQualityLowButton.setOnAction(e -> {
             renderer.setShadowQualityLow();
-            startRender(controlsPanel, renderProgressBar);
+            startRender(leftControlsPanel, renderProgressBar);
         });
         shadowQualityHighButton.setOnAction(e -> {
             renderer.setShadowQualityHigh();
-            startRender(controlsPanel, renderProgressBar);
+            startRender(leftControlsPanel, renderProgressBar);
         });
         shadowQualityVeryHighButton.setOnAction(e -> {
             renderer.setShadowQualityVeryHigh();
-            startRender(controlsPanel, renderProgressBar);
+            startRender(leftControlsPanel, renderProgressBar);
         });
 
         //Resolution actions
-        resolutionSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
-            if (!isChanging) {
-                double finalValue = resolutionSlider.getValue();
+        resolutionSelector.setOnAction(e -> {
+            String selectedResolution = resolutionSelector.getValue();
 
-                WritableImage newImage = new WritableImage((int) finalValue, (int) finalValue);
-                view.setImage(newImage);
-                renderer.setWritableImage(newImage);
+            switch (selectedResolution) {
+                case "300 x 300" -> {
+                    currentResolution = 250;
+                    requestRender(true, () -> {}, leftControlsPanel,  renderProgressBar);
+                }
 
-                currentResolution = (int) finalValue;
-                resolutionLabel.setText("Resolution: " + currentResolution + " x " + currentResolution);
+                case "500 x 500" -> {
+                    currentResolution = 500;
+                    requestRender(true, () -> {}, leftControlsPanel,  renderProgressBar);
+                }
 
-                startRender(controlsPanel, renderProgressBar);
+                case "750 x 750" -> {
+                    currentResolution = 750;
+                    requestRender(true, () -> {}, leftControlsPanel,  renderProgressBar);
+                }
+
+                case "1000 x 1000" -> {
+                    currentResolution = 1000;
+                    requestRender(true, () -> {}, leftControlsPanel,  renderProgressBar);
+                }
             }
         });
 
@@ -605,13 +682,13 @@ public class UIManager {
             lightZAxisSlider.setValue(defaultCameraZ);
             renderScene.getLight().setZPos(defaultCameraZ);
 
-            resolutionSlider.setValue(defaultResolution);
+            resolutionSelector.setValue("500 x 500");
             currentResolution = defaultResolution;
-            resolutionLabel.setText("Resolution: " + currentResolution + " x " + currentResolution);
+
 
             renderer.setShadowQualityLow();
 
-            requestRender(true, () -> {}, controlsPanel, renderProgressBar);
+            requestRender(true, () -> {}, leftControlsPanel, renderProgressBar);
         });
     }
 
@@ -635,14 +712,12 @@ public class UIManager {
 
         renderTask.setOnSucceeded(e -> {
             controlsPanel.setDisable(false);
-            renderProgressBar.setVisible(false);
             renderProgressBar.progressProperty().unbind();
             renderProgressBar.setProgress(0);
         });
 
         renderTask.setOnFailed(e -> {
             controlsPanel.setDisable(false);
-            renderProgressBar.setVisible(false);
             renderProgressBar.progressProperty().unbind();
             renderProgressBar.setProgress(0);
 
@@ -657,7 +732,7 @@ public class UIManager {
     }
 
     private void loadModelAndRender(
-            File file,
+            String filePath,
             double scale,
             Vector position,
             VBox controlsPanel,
@@ -668,7 +743,7 @@ public class UIManager {
             @Override
             protected Void call() {
 
-                loadModel(file, scale, position);
+                loadModel(filePath, scale, position);
 
                 renderer.render(progress -> updateProgress(progress, 1.0));
 
@@ -682,14 +757,12 @@ public class UIManager {
 
         task.setOnSucceeded(e -> {
             controlsPanel.setDisable(false);
-            renderProgressBar.setVisible(false);
             renderProgressBar.progressProperty().unbind();
             renderProgressBar.setProgress(0);
         });
 
         task.setOnFailed(e -> {
             controlsPanel.setDisable(false);
-            renderProgressBar.setVisible(false);
             renderProgressBar.progressProperty().unbind();
             renderProgressBar.setProgress(0);
 
@@ -703,7 +776,17 @@ public class UIManager {
 
 
 
-    private void loadModel(File file, double scale, Vector offset){
+    private void loadModel(String filePath, double scale, Vector offset){
+
+        File file = null;
+        try {
+            file = new File(getClass()
+                    .getResource(filePath)
+                    .toURI());
+        } catch (Exception ex) {
+            throw new RuntimeException("Model could not be loaded");
+        }
+
         renderScene.clearObjects();
 
         if(file.exists()) {
@@ -736,7 +819,7 @@ public class UIManager {
 
         renderInProgress = true;
 
-        Runnable pendingCameraUpdate = update;
+        Runnable pendingUpdate = update;
 
         WritableImage img;
         if(finalRender){
@@ -780,7 +863,6 @@ public class UIManager {
             if (finalRender) {
                 controlsPanel.setDisable(false);
 
-                renderProgressBar.setVisible(false);
                 renderProgressBar.progressProperty().unbind();
                 renderProgressBar.setProgress(0);
             }
@@ -789,10 +871,10 @@ public class UIManager {
                 pendingFinalRender = false;
                 renderAgain = false;
 
-                requestRender(true, pendingCameraUpdate, controlsPanel, renderProgressBar);
+                requestRender(true, pendingUpdate, controlsPanel, renderProgressBar);
             } else if(renderAgain){
                 renderAgain = false;
-                requestRender(false, pendingCameraUpdate, controlsPanel, renderProgressBar);
+                requestRender(false, pendingUpdate, controlsPanel, renderProgressBar);
             }
         });
 
@@ -801,7 +883,6 @@ public class UIManager {
             if (finalRender) {
                 controlsPanel.setDisable(false);
 
-                renderProgressBar.setVisible(false);
                 renderProgressBar.progressProperty().unbind();
                 renderProgressBar.setProgress(0);
             }

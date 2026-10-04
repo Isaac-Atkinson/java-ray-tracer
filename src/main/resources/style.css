@@ -1,16 +1,110 @@
 .root {
     -fx-background-color: black;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+
+    -control-panel: #191923;
+    -control-section: #1e212b;
+    -pressable-background: #313040;
+    -border-color: #323740;
+    -primary-color: #4b37da;
+    -main-text-color: white;
 }
+
+.controls-panel {
+    -fx-background-color: -control-panel;
+    -fx-padding: 22px;
+    -fx-spacing: 12px;
+    -fx-border-color: transparent -border-color transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.controls-section {
+    -fx-background-color: -control-section;
+
+    -fx-border-color: -border-color;
+    -fx-border-width: 1px;
+    -fx-border-radius: 7px;
+
+    -fx-background-radius: 7px;
+
+    -fx-padding: 14px;
+    -fx-spacing: 10px;
+}
+
+/* Section titles */
+.label.section-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Regular labels */
 
 .label {
-    -fx-text-fill: white;
+    -fx-text-fill: -main-text-color;
 }
+
+/* Buttons */
 
 .button {
-    -fx-text-fill: white;
-    -fx-background-color: #333333;
+    -fx-background-color: -pressable-background;
+    -fx-text-fill: -main-text-color;
+
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+
+    -fx-padding: 8px 14px;
+
+    -fx-cursor: hand;
 }
 
-.slider .axis {
-    -fx-tick-label-fill: white;
+.button:hover {
+    -fx-background-color: #354f7a;
+}
+
+.button:pressed {
+    -fx-background-color: -primary-color;
+}
+
+/* Sliders */
+
+.slider .track {
+    -fx-background-color: -pressable-background;
+    -fx-pref-height: 4px;
+}
+
+.slider .thumb {
+    -fx-background-color: -primary-color;
+
+    -fx-pref-width: 14px;
+    -fx-pref-height: 14px;
+}
+
+/* Combo boxes */
+
+.combo-box {
+    -fx-background-color: -pressable-background;
+    -fx-background-radius: 5px;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: -main-text-color;
+    -fx-background-color: -pressable-background;
+}
+
+/* Progress Bar */
+
+.progress-bar .track {
+    -fx-background-color: -control-panel;
+    -fx-background-radius: 0;
+}
+
+.progress-bar .bar {
+    -fx-background-color: -primary-color;
+    -fx-background-radius: 0;
+}
+
+.color-picker {
+    -fx-background-color: -pressable-background;
 }
