@@ -18,15 +18,10 @@ import java.util.ArrayList;
 public class RenderScene {
 
     private ArrayList<SceneObject> objects = new ArrayList<>();
-    public LightSource light;
+
+    private LightSource light;
 
     private final BVH bvh;
-
-    public RenderScene(ArrayList<SceneObject> objects, LightSource light) {
-        this.light = light;
-        this.objects = new ArrayList<>(objects);
-        bvh = new BVH(new ArrayList<>(objects));
-    }
 
     public RenderScene(){
         initialiseScene();
@@ -40,6 +35,10 @@ public class RenderScene {
      */
     public Intersection closestHit(Ray ray){
         return bvh.traverseBVH(ray);
+    }
+
+    public boolean isOccluded(Ray ray, double distToLight){
+        return bvh.isOccluded(ray, distToLight);
     }
 
 

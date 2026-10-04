@@ -75,6 +75,10 @@ public class BVH {
         return traverseBVH(root, ray, closest);
     }
 
+    public boolean isOccluded(Ray ray, double distToLight){
+        return isOccluded(root, ray, distToLight);
+    }
+
     /**
      * Traverses the BVH to find the closest intersection of a ray
      * with scene geometry.
@@ -99,11 +103,73 @@ public class BVH {
                     }
                 }
             } else {
-                closest = traverseBVH(node.childA, ray, closest);
-                closest = traverseBVH(node.childB, ray, closest);
+                double tA = rayIntersectsBox(ray, node.childA);
+                double tB = rayIntersectsBox(ray, node.childB);
+
+                Node nearest;
+                Node farthest;
+
+                double tNear;
+                double tFar;
+
+                if(tA < tB){
+                    nearest = node.childA;
+                    farthest = node.childB;
+
+                    tNear = tA;
+                    tFar = tB;
+                } else {
+                    nearest = node.childB;
+                    farthest = node.childA;
+
+                    tNear = tB;
+                    tFar = tA;
+                }
+
+                if(tNear < closest.t){
+                    closest = traverseBVH(nearest, ray, closest);
+                }
+
+                if(tFar < closest.t){
+                    closest = traverseBVH(farthest, ray, closest);
+                }
             }
         }
         return closest;
+    }
+
+    private boolean isOccluded(Node node, Ray ray, double distToLight){
+        double t = rayIntersectsBox(ray, node);
+
+        if(t == Double.POSITIVE_INFINITY){
+            return false;
+        }
+
+        if(t > distToLight){
+            return false;
+        }
+
+
+
+        if (node.isLeaf) {
+
+            for (SceneObject object : node.primitives) {
+                Intersection hit = object.intersect(ray);
+
+                if (hit != null) {
+                    if (hit.t < distToLight) return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        if(isOccluded(node.childA, ray, distToLight)){
+            return true;
+        }
+
+        return isOccluded(node.childB, ray, distToLight);
     }
 
     /**

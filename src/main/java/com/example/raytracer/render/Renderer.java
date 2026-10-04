@@ -142,7 +142,7 @@ public class Renderer {
         double diffuseSum = 0.0;
         double specularSum = 0.0;
 
-        ArrayList<Vector> samples = renderScene.light.sampleLightSource(sampleCount); //sample the light source
+        ArrayList<Vector> samples = renderScene.getLight().sampleLightSource(sampleCount); //sample the light source
 
         for (Vector sample : samples) {
 
@@ -153,7 +153,7 @@ public class Renderer {
             Ray toLightRay = new Ray(offsetOrigin, toLight);
 
             //Accumulate diffuse and specular values only if the light source is visible
-            if(lightSourceVisible(toLightRay, sample)){
+            if(!lightSourceOccluded(toLightRay, sample)){
 
                 //compute diffuse contribution
                 double dp = calculateDP(toLight, normal, ray);
@@ -178,11 +178,11 @@ public class Renderer {
         diff = diffuseSum / sampleCount; //Average diffuse
         spec = specularSum / sampleCount; //Average specular
 
-        rgb = applyAmbient(rgb, obj.hit, renderScene.light); //Add ambient contribution
+        rgb = applyAmbient(rgb, obj.hit, renderScene.getLight()); //Add ambient contribution
 
-        rgb = applyDiffuse(rgb, obj.hit, renderScene.light, diff); //Add diffuse contribution
+        rgb = applyDiffuse(rgb, obj.hit, renderScene.getLight(), diff); //Add diffuse contribution
 
-        rgb = applySpecular(rgb, obj.hit, renderScene.light, spec); //Add specular contribution
+        rgb = applySpecular(rgb, obj.hit, renderScene.getLight(), spec); //Add specular contribution
 
         rgb = clampRGB(rgb); //Clamp rgb values in range [0, 1]
         return Color.color(rgb[0], rgb[1], rgb[2]);
@@ -196,21 +196,23 @@ public class Renderer {
      * @param lightPos the light position current being checked
      * @return true if the light source is visible, false otherwise.
      */
-    private boolean lightSourceVisible(Ray ray, Vector lightPos) {
+    private boolean lightSourceOccluded(Ray ray, Vector lightPos) {
 
         Vector toLight = lightPos.sub(ray.origin);
         double distanceToLight = toLight.magnitude();
 
-        Intersection obj = renderScene.closestHit(ray);
+        return renderScene.isOccluded(ray, distanceToLight);
 
-        if (obj == null) {
-            return true;
-        }
-        if ((obj.t > 0 && obj.t < distanceToLight)) { //Checks if object between ray origin and light source
-            return false;
-        } else {
-            return true;
-        }
+//        Intersection obj = renderScene.closestHit(ray);
+//
+//        if (obj == null) {
+//            return true;
+//        }
+//        if ((obj.t > 0 && obj.t < distanceToLight)) { //Checks if object between ray origin and light source
+//            return false;
+//        } else {
+//            return true;
+//        }
     }
 
 
