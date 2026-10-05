@@ -1,4 +1,5 @@
-package com.example.raytracer.helper;
+package com.example.raytracer.math;
+
 /**
  * Represents a ray
  * rays have an origin and a direction

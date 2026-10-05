@@ -1,4 +1,6 @@
-package com.example.raytracer.helper;
+package com.example.raytracer.scene;
+
+import com.example.raytracer.math.Vector;
 
 public class Camera {
 

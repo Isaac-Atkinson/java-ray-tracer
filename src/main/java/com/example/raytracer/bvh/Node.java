@@ -1,8 +1,7 @@
 package com.example.raytracer.bvh;
 
 import com.example.raytracer.geometry.SceneObject;
-import com.example.raytracer.helper.Vector;
-import com.example.raytracer.geometry.Triangle;
+import com.example.raytracer.math.Vector;
 
 import java.util.ArrayList;
 

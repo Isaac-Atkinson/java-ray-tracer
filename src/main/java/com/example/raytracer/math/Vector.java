@@ -1,4 +1,4 @@
-package com.example.raytracer.helper;
+package com.example.raytracer.math;
 
 /**
  * represents a 3D vector

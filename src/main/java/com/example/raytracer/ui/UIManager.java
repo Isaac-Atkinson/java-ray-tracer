@@ -1,9 +1,9 @@
-package com.example.raytracer.UI;
+package com.example.raytracer.ui;
 
 import com.example.raytracer.geometry.Model;
 import com.example.raytracer.geometry.SceneObject;
-import com.example.raytracer.helper.Camera;
-import com.example.raytracer.helper.Vector;
+import com.example.raytracer.scene.Camera;
+import com.example.raytracer.math.Vector;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -12,8 +12,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import com.example.raytracer.render.PLYReader;
-import com.example.raytracer.render.RenderScene;
+import com.example.raytracer.io.PLYReader;
+import com.example.raytracer.scene.RenderScene;
 import com.example.raytracer.render.Renderer;
 
 import java.io.File;
@@ -409,7 +409,7 @@ public class UIManager {
                 case "Bunny" -> {
                     loadModelAndRender(
                             BUNNY_FILE,
-                            2600,
+                            3000,
                             new Vector(50,-250,0),
                             leftControlsPanel,
                             renderProgressBar
@@ -419,8 +419,8 @@ public class UIManager {
                 case "Dragon" -> {
                     loadModelAndRender(
                             DRAGON_FILE,
-                            2600,
-                            new Vector(50,-250,0),
+                            3000,
+                            new Vector(0,-350,-50),
                             leftControlsPanel,
                             renderProgressBar
                     );
@@ -429,8 +429,8 @@ public class UIManager {
                 case "Buddha" -> {
                     loadModelAndRender(
                             BUDDHA_FILE,
-                            2600,
-                            new Vector(50,-250,0),
+                            3000,
+                            new Vector(20,-350,0),
                             leftControlsPanel,
                             renderProgressBar
                     );

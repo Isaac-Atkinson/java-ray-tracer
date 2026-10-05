@@ -1,12 +1,10 @@
-package com.example.raytracer.render;
+package com.example.raytracer.scene;
 import com.example.raytracer.bvh.BVH;
 import com.example.raytracer.geometry.Plane;
-import com.example.raytracer.geometry.Sphere;
-import com.example.raytracer.helper.Intersection;
-import com.example.raytracer.helper.LightSource;
-import com.example.raytracer.helper.Ray;
+import com.example.raytracer.math.Intersection;
+import com.example.raytracer.math.Ray;
 import com.example.raytracer.geometry.SceneObject;
-import com.example.raytracer.helper.Vector;
+import com.example.raytracer.math.Vector;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
@@ -82,11 +80,11 @@ public class RenderScene {
     }
 
     private void initialiseWalls(){
-        Color ambientRed = Color.color(0.1, 0.02, 0.02);
+        Color ambientRed = Color.color(0.2, 0.02, 0.02);
         Color diffuseRed = Color.color(1, 0.2, 0.2);
-        Color ambientGreen = Color.color(0.02, 0.1, 0.02);
+        Color ambientGreen = Color.color(0.02, 0.2, 0.02);
         Color diffuseGreen = Color.color(0.2, 1, 0.2);
-        Color ambientBlue = Color.color(0.02, 0.02, 0.1);
+        Color ambientBlue = Color.color(0.02, 0.02, 0.2);
         Color diffuseBlue = Color.color(0.2, 0.2, 1);
         Color specular = Color.color(0, 0, 0);
 

@@ -1,9 +1,9 @@
 package com.example.raytracer.geometry;
 
-import com.example.raytracer.helper.Intersection;
-import com.example.raytracer.helper.Ray;
+import com.example.raytracer.math.Intersection;
+import com.example.raytracer.math.Ray;
 import javafx.scene.paint.Color;
-import com.example.raytracer.helper.Vector;
+import com.example.raytracer.math.Vector;
 
 /**
  * Represents a 3D sphere.

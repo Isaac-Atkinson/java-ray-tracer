@@ -1,9 +1,13 @@
 package com.example.raytracer.render;
 
-import com.example.raytracer.helper.*;
 import com.example.raytracer.geometry.SceneObject;
+import com.example.raytracer.math.Intersection;
+import com.example.raytracer.math.Ray;
+import com.example.raytracer.math.Vector;
+import com.example.raytracer.scene.Camera;
+import com.example.raytracer.scene.LightSource;
+import com.example.raytracer.scene.RenderScene;
 import javafx.application.Platform;
-import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;

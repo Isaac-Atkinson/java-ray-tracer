@@ -1,8 +1,8 @@
 package com.example.raytracer.bvh;
 
 import com.example.raytracer.geometry.SceneObject;
-import com.example.raytracer.helper.Intersection;
-import com.example.raytracer.helper.Ray;
+import com.example.raytracer.math.Intersection;
+import com.example.raytracer.math.Ray;
 
 import java.util.ArrayList;
 

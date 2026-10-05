@@ -1,4 +1,4 @@
-package com.example.raytracer.helper;
+package com.example.raytracer.math;
 
 import com.example.raytracer.geometry.SceneObject;
 

@@ -1,6 +1,8 @@
-package com.example.raytracer.helper;
+package com.example.raytracer.scene;
 
 import java.util.ArrayList;
+
+import com.example.raytracer.math.Vector;
 import javafx.scene.paint.Color;
 
 

@@ -1,9 +1,8 @@
-package com.example.raytracer.render;
+package com.example.raytracer.io;
 
 import com.example.raytracer.geometry.SceneObject;
-import com.example.raytracer.helper.Vector;
+import com.example.raytracer.math.Vector;
 import com.example.raytracer.geometry.Triangle;
-import javafx.scene.paint.Color;
 
 import java.io.*;
 import java.util.ArrayList;

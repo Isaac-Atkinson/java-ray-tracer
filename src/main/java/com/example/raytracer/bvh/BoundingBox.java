@@ -1,6 +1,6 @@
 package com.example.raytracer.bvh;
 
-import com.example.raytracer.helper.Vector;
+import com.example.raytracer.math.Vector;
 
 /**
  * Represents a bounding box
