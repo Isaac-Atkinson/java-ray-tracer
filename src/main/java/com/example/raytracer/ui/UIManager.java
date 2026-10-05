@@ -430,7 +430,7 @@ public class UIManager {
                     loadModelAndRender(
                             BUDDHA_FILE,
                             3000,
-                            new Vector(20,-350,0),
+                            new Vector(0,-400,0),
                             leftControlsPanel,
                             renderProgressBar
                     );
