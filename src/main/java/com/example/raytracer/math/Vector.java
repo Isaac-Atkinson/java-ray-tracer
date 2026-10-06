@@ -13,10 +13,46 @@ public class Vector {
 
     public Vector () {}
 
-    public Vector ( double x , double y , double z ) {
+    public Vector (double x , double y , double z ) {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    /**
+     * adds the given vector to this one
+     * @param other the other vector
+     * @return the new vector after addition
+     */
+    public Vector add (Vector other) {
+        return new Vector (x + other.x , y + other.y , z + other.z );
+    }
+
+    /**
+     * Subtracts the given vector from this one
+     * @param other the other vector
+     * @return the new vector after subtraction
+     */
+    public Vector sub (Vector other) {
+        return new Vector (x - other.x , y - other.y , z - other.z );
+    }
+
+    /**
+     * Multiplies this vector by a scalar
+     * @param val the scalar
+     * @return the new vector after multiplication
+     */
+    public Vector mul (double val) {
+        return new Vector (val * x , val * y , val * z );
+    }
+
+    /**
+     * Performs the dot product between this vector and the given vector
+     * @param other the other vector
+     * @return the dot product between the two vectors
+     */
+    public double dot (Vector other) {
+        return (x * other.x) + (y * other.y) + (z * other.z);
     }
 
     public double magnitude () {
@@ -25,6 +61,7 @@ public class Vector {
 
     public void normalise () {
         double mag = magnitude ();
+
         if (mag !=0) {
             x /= mag;
             y /= mag;
@@ -33,47 +70,11 @@ public class Vector {
     }
 
     /**
-     * Performs the dot product between this vector the given vector
-     * @param other the other vector
-     * @return the dot product between the two vectors
-     */
-    public double dot ( Vector other) {
-        return (x * other.x) + (y * other.y) + (z * other.z);
-    }
-
-    /**
-     * Subtracts the given vector from this one
-     * @param other the other vector
-     * @return the new vector after subtraction
-     */
-    public Vector sub ( Vector other) {
-        return new Vector (x - other.x , y - other.y , z - other.z );
-    }
-
-    /**
-     * adds the given vector to this one
-     * @param other the other vector
-     * @return the new vector after addition
-     */
-    public Vector add ( Vector other) {
-        return new Vector (x + other.x , y + other.y , z + other.z );
-    }
-
-    /**
-     * Multiplies this vector by a scalar
-     * @param val the scalar
-     * @return the new vector after multiplication
-     */
-    public Vector mul ( double val) {
-        return new Vector (val * x , val * y , val * z );
-    }
-
-    /**
      * Performs cross product between this vector and the given vector
      * @param other the other vector
      * @return the cross product between the two vectors
      */
-    public Vector cross( Vector other) {
+    public Vector cross(Vector other) {
         return new Vector(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x );
     }
 

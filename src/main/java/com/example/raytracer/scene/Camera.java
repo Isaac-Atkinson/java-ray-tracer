@@ -87,7 +87,7 @@ public class Camera {
     }
 
     public void setPitch(double pitch) {
-        this.pitch = Math.max(-89, Math.min(89, pitch));
+        this.pitch = Math.clamp(pitch, -89, 89);
         update();
     }
 

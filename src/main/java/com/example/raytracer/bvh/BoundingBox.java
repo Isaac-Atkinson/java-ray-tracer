@@ -26,9 +26,9 @@ public class BoundingBox {
         double yDiff = maxValues.y - minValues.y;
         double zDiff = maxValues.z - minValues.z;
 
-        if(xDiff > yDiff && xDiff > zDiff){
+        if(xDiff >= yDiff && xDiff >= zDiff){
             return Axis.X;
-        } else if(yDiff > xDiff && yDiff > zDiff){
+        } else if(yDiff >= xDiff && yDiff >= zDiff){
             return Axis.Y;
         }  else {
             return Axis.Z;

@@ -4,7 +4,7 @@
 
 An interactive ray tracer written in Java and JavaFX, supporting triangle meshes, soft shadows, interactive camera controls, and BVH acceleration.
 
-<img src="docs/screenshots/Dragon_Render_With_UI.png" alt="A render of the Stanford Dragon model with soft shadows" width="700">
+<img src="docs/screenshots/Dragon_Render_With_UI.png" alt="A render of the Stanford Dragon model with soft shadows">
 
 ## About
 
@@ -35,11 +35,11 @@ A JavaFX interface lets you control the camera, lighting, material properties, a
 
 ### Camera Controls
 
-<img src="docs/gifs/Camera_Movement.gif" alt="Camera movement demo" width="700">
+<img src="docs/gifs/Camera_Movement.gif" alt="Camera movement demo">
 
 ### Lighting Controls
 
-<img src="docs/gifs/Light_Movement.gif" alt="Light movement demo" width="700">
+<img src="docs/gifs/Light_Movement.gif" alt="Light movement demo">
 
 ## Running the application
 
@@ -57,11 +57,26 @@ From the project directory:
 .\mvnw.cmd clean javafx:run
 ```
 
-**macOS / Linux**
+**macOS/Linux**
 
 ```bash
 ./mvnw clean javafx:run
 ```
+
+### Running Tests
+
+**Windows**
+
+```powershell
+.\mvnw.cmd test
+```
+
+**macOS/Linux**
+
+```bash
+./mvnw test
+```
+
 
 ## Project Structure
 
@@ -80,6 +95,8 @@ src/
 │   └── resources/
 │       ├── com/example/raytracer/models/
 │       └── style.css
+└── test/
+    └── java/
 ```
 
 ## Gallery

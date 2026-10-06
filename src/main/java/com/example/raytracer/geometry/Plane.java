@@ -20,9 +20,16 @@ public class Plane extends SceneObject {
         this.pointOnPlane = pointOnPlane;
     }
 
+    public Plane (Vector planeNormal, Vector pointOnPlane){
+        this.planeNormal = planeNormal;
+        this.pointOnPlane = pointOnPlane;
+    }
+
     public Intersection intersect(Ray ray){
         double denom = planeNormal.dot(ray.direction);
+
         if(denom == 0) return null;
+
         if(denom > -EPSILON && denom < EPSILON) {
             return null;
         }

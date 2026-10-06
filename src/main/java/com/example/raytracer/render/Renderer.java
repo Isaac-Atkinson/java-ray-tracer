@@ -194,11 +194,11 @@ public class Renderer {
 
 
     /**
-     * Checks if the light source is visible or blocked
+     * Checks if the light source is occluded
      * from a certain point.
      * @param ray a ray from the intersection to the light source
      * @param lightPos the light position current being checked
-     * @return true if the light source is visible, false otherwise.
+     * @return true if the light source is occluded, false otherwise
      */
     private boolean lightSourceOccluded(Ray ray, Vector lightPos) {
 
