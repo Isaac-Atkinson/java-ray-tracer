@@ -18,10 +18,10 @@ public class LightSource {
     private double width;
     private double height;
 
-    public Color color;
+    private Color color;
 
-    private Vector right;
-    private Vector up;
+    private final Vector right;
+    private final Vector up;
 
 
     public LightSource(Vector pos, Color color, double width, double height, Vector right, Vector up) {

@@ -8,16 +8,16 @@ import javafx.scene.paint.Color;
 
 public abstract class SceneObject {
 
-    public Color diffuse;
-    public Color ambient;
-    public Color specular;
+    protected Color diffuse;
+    protected Color ambient;
+    protected Color specular;
 
-    public double shininess;
+    protected double shininess;
 
-    public Vector centre = new Vector();
+    protected Vector centre = new Vector();
 
-    public Vector minVals;
-    public Vector maxVals;
+    protected Vector minVals;
+    protected Vector maxVals;
 
     public SceneObject(){};
 
@@ -51,4 +51,31 @@ public abstract class SceneObject {
     }
     public void setShininess(double shininess) {this.shininess = shininess;};
 
+    public Color getDiffuse() {
+        return diffuse;
+    }
+
+    public Color getAmbient() {
+        return ambient;
+    }
+
+    public Color getSpecular() {
+        return specular;
+    }
+
+    public double getShininess() {
+        return shininess;
+    }
+
+    public Vector getCentre() {
+        return centre;
+    }
+
+    public Vector getMinVals() {
+        return minVals;
+    }
+
+    public Vector getMaxVals() {
+        return maxVals;
+    }
 }

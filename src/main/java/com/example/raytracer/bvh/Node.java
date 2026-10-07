@@ -16,11 +16,11 @@ import java.util.ArrayList;
 public class Node {
 
 
-    public BoundingBox boundingBox;
-    public ArrayList<SceneObject> primitives = new ArrayList<>();
-    public Node childA = null;
-    public Node childB = null;
-    public boolean isLeaf = false;
+    private BoundingBox boundingBox;
+    private ArrayList<SceneObject> primitives = new ArrayList<>();
+    private Node childA = null;
+    private Node childB = null;
+    private boolean isLeaf = false;
 
     public Node(){}
 
@@ -29,7 +29,7 @@ public class Node {
     }
 
     public void addObject(SceneObject object) {
-        primitives.add(object);
+        getPrimitives().add(object);
     }
 
     /**
@@ -44,24 +44,24 @@ public class Node {
         double lowestZ = Double.POSITIVE_INFINITY;
         double highestZ = Double.NEGATIVE_INFINITY;
 
-        for(SceneObject obj : primitives){
-            if(obj.minVals.x < lowestX ){
-                lowestX = obj.minVals.x;
+        for(SceneObject obj : getPrimitives()){
+            if(obj.getMinVals().x < lowestX ){
+                lowestX = obj.getMinVals().x;
             }
-            if(obj.minVals.y < lowestY){
-                lowestY = obj.minVals.y;
+            if(obj.getMinVals().y < lowestY){
+                lowestY = obj.getMinVals().y;
             }
-            if(obj.minVals.z < lowestZ){
-                lowestZ = obj.minVals.z;
+            if(obj.getMinVals().z < lowestZ){
+                lowestZ = obj.getMinVals().z;
             }
-            if(obj.maxVals.x > highestX ){
-                highestX = obj.maxVals.x;
+            if(obj.getMaxVals().x > highestX ){
+                highestX = obj.getMaxVals().x;
             }
-            if(obj.maxVals.y > highestY){
-                highestY = obj.maxVals.y;
+            if(obj.getMaxVals().y > highestY){
+                highestY = obj.getMaxVals().y;
             }
-            if(obj.maxVals.z > highestZ){
-                highestZ = obj.maxVals.z;
+            if(obj.getMaxVals().z > highestZ){
+                highestZ = obj.getMaxVals().z;
             }
         }
 
@@ -70,11 +70,47 @@ public class Node {
         boundingBox = new BoundingBox(minValues, maxValues);
     }
 
+    /**
+     * Sorts the primitives in this node along a given axis
+     * @param axis the axis to sort along
+     */
     public void sortPrimitives(Axis axis){
-        primitives.sort((a, b) -> {
-            if (axis == Axis.X) return Double.compare(a.centre.x, b.centre.x);
-            if (axis == Axis.Y) return Double.compare(a.centre.y, b.centre.y);
-            return Double.compare(a.centre.z, b.centre.z);
+        getPrimitives().sort((a, b) -> {
+            if (axis == Axis.X) return Double.compare(a.getCentre().x, b.getCentre().x);
+            if (axis == Axis.Y) return Double.compare(a.getCentre().y, b.getCentre().y);
+            return Double.compare(a.getCentre().z, b.getCentre().z);
         });
+    }
+
+    public BoundingBox getBoundingBox() {
+        return boundingBox;
+    }
+
+    public ArrayList<SceneObject> getPrimitives() {
+        return primitives;
+    }
+
+    public Node getChildA() {
+        return childA;
+    }
+
+    public Node getChildB() {
+        return childB;
+    }
+
+    public boolean isLeaf() {
+        return isLeaf;
+    }
+
+    public void setIsLeaf(boolean isLeaf) {
+        this.isLeaf = isLeaf;
+    }
+
+    public void setChildA(Node childA) {
+        this.childA = childA;
+    }
+
+    public void setChildB(Node childB) {
+        this.childB = childB;
     }
 }

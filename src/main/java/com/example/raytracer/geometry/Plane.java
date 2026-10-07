@@ -9,8 +9,8 @@ public class Plane extends SceneObject {
 
     private static final double EPSILON = 1e-6;
 
-    public Vector planeNormal;
-    public Vector pointOnPlane;
+    private final Vector planeNormal;
+    private final Vector pointOnPlane;
 
     public Plane (Vector planeNormal, Vector pointOnPlane,
                   Color ambient, Color diffuse, Color specular,
@@ -43,6 +43,18 @@ public class Plane extends SceneObject {
 
     public Vector getNormal(Vector intersection){
         return planeNormal;
+    }
+
+    public void setMinVals(Vector minVals){
+        this.minVals = minVals;
+    }
+
+    public void setMaxVals(Vector maxVals){
+        this.maxVals = maxVals;
+    }
+
+    public void setCentre(Vector centre){
+        this.centre = centre;
     }
 
 

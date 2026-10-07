@@ -22,19 +22,15 @@ import java.util.stream.IntStream;
  */
 public class Renderer {
 
-    public static final double EPSILON = 1e-6;
+    private static final double EPSILON = 1e-6;
+    private static final Color BACKGROUND_COLOR = Color.BLACK;
 
-    //The background colour
-    private static final Color backgroundColor = Color.color(0.0, 0.0, 0.0);
 
     private final Camera camera;
-
-    //The scene to be rendered
     private final RenderScene renderScene;
 
-    //The JavaFX image
+
     private WritableImage image;
-    //The image writer
     private PixelWriter pixelWriter;
 
     //The shadow sample count
@@ -54,7 +50,7 @@ public class Renderer {
 
     /**
      * Loops through each pixel, traces a ray and computes the colour
-     * for that pixel before writing the colour to the image.
+     * for that pixel before writing the accumulated colours to the image.
      */
     public void render(DoubleConsumer progressCallback) {
 
@@ -65,7 +61,7 @@ public class Renderer {
         AtomicInteger rowsCompleted = new AtomicInteger(0);
 
         IntStream.range(0, height).parallel().forEach(y -> {
-            for (int x = 0; x < image.getWidth(); x++) {
+            for (int x = 0; x < width; x++) {
 
                 //Generate a ray
                 Ray ray = generateRay(x, y);
@@ -76,7 +72,7 @@ public class Renderer {
                 //compute pixel colour
                 colors[y][x] = (obj.hit != null)
                         ? applyShading(obj, ray)
-                        : backgroundColor;
+                        : BACKGROUND_COLOR;
 
             }
 
@@ -87,8 +83,8 @@ public class Renderer {
 
         //write accumulated colours to the image
         Platform.runLater(() -> {
-            for(int y = 0; y < image.getHeight(); y++){
-                for(int x = 0; x < image.getWidth(); x++){
+            for(int y = 0; y < height; y++){
+                for(int x = 0; x < width; x++){
                     pixelWriter.setColor(x, y, colors[y][x]);
                 }
             }
@@ -160,18 +156,18 @@ public class Renderer {
             if(!lightSourceOccluded(toLightRay, sample)){
 
                 //compute diffuse contribution
-                double dp = calculateDP(toLight, normal, ray);
+                double dp = calculateDiffuse(toLight, normal);
                 diffuseSum += dp;
 
                 //compute specular contribution if shininess greater than zero
-                if(obj.hit.shininess > 0){
+                if(obj.hit.getShininess() > 0){
                     Vector lightToIntersection = intersection.sub(sample);
                     lightToIntersection.normalise();
 
                     Vector intersectionToRayOrigin = ray.origin.sub(intersection);
                     intersectionToRayOrigin.normalise();
 
-                    double spec = calculateSpec(lightToIntersection, normal, intersectionToRayOrigin, obj.hit.shininess);
+                    double spec = calculateSpecular(lightToIntersection, normal, intersectionToRayOrigin, obj.hit.getShininess());
                     specularSum += spec;
                 }
             }
@@ -194,8 +190,7 @@ public class Renderer {
 
 
     /**
-     * Checks if the light source is occluded
-     * from a certain point.
+     * Determines if a ray is blocked from reaching the light source.
      * @param ray a ray from the intersection to the light source
      * @param lightPos the light position current being checked
      * @return true if the light source is occluded, false otherwise
@@ -206,17 +201,6 @@ public class Renderer {
         double distanceToLight = toLight.magnitude();
 
         return renderScene.isOccluded(ray, distanceToLight);
-
-//        Intersection obj = renderScene.closestHit(ray);
-//
-//        if (obj == null) {
-//            return true;
-//        }
-//        if ((obj.t > 0 && obj.t < distanceToLight)) { //Checks if object between ray origin and light source
-//            return false;
-//        } else {
-//            return true;
-//        }
     }
 
 
@@ -230,9 +214,9 @@ public class Renderer {
      * @return the rgb array updated after applying ambient shading.
      */
     private double[] applyAmbient(double[] rgb, SceneObject obj, LightSource light) {
-        rgb[0] += obj.ambient.getRed() * light.color.getRed();
-        rgb[1] += obj.ambient.getGreen() * light.color.getGreen();
-        rgb[2] += obj.ambient.getBlue() * light.color.getBlue();
+        rgb[0] += obj.getAmbient().getRed() * light.getColor().getRed();
+        rgb[1] += obj.getAmbient().getGreen() * light.getColor().getGreen();
+        rgb[2] += obj.getAmbient().getBlue() * light.getColor().getBlue();
         return rgb;
     }
 
@@ -245,9 +229,9 @@ public class Renderer {
      * @return the rgb array updated after applying diffuse shading.
      */
     private double[] applyDiffuse(double[] rgb, SceneObject obj, LightSource light, double diff) {
-        rgb[0] += obj.diffuse.getRed() * light.color.getRed() * diff;
-        rgb[1] += obj.diffuse.getGreen() * light.color.getGreen() * diff;
-        rgb[2] += obj.diffuse.getBlue() * light.color.getBlue() * diff;
+        rgb[0] += obj.getDiffuse().getRed() * light.getColor().getRed() * diff;
+        rgb[1] += obj.getDiffuse().getGreen() * light.getColor().getGreen() * diff;
+        rgb[2] += obj.getDiffuse().getBlue() * light.getColor().getBlue() * diff;
         return rgb;
     }
 
@@ -261,24 +245,21 @@ public class Renderer {
      * @return the rgb array updated after applying specular shading.
      */
     private double[] applySpecular(double[] rgb, SceneObject obj, LightSource light, double spec) {
-        rgb[0] += obj.specular.getRed() * light.color.getRed() * spec;
-        rgb[1] += obj.specular.getGreen() * light.color.getGreen()  * spec;
-        rgb[2] += obj.specular.getBlue() * light.color.getBlue()  * spec;
+        rgb[0] += obj.getSpecular().getRed() * light.getColor().getRed() * spec;
+        rgb[1] += obj.getSpecular().getGreen() * light.getColor().getGreen()  * spec;
+        rgb[2] += obj.getSpecular().getBlue() * light.getColor().getBlue()  * spec;
         return rgb;
     }
 
     /**
-     * Calculates the dot product between the surface normal
-     * and the vector to the light source.
-     * Triangle normals may face the wrong direction and
-     * are flipped here before calculating the dp.
+     * Calculates the diffuse component
      * @param toLight a vector to the light source
      * @param normal the surface normal at the point being shaded
-     * @param ray the ray being traced
      * @return the dot product between the surface normal
      *         and the vector to the light source.
      */
-    private double calculateDP(Vector toLight, Vector normal, Ray ray){
+    private double calculateDiffuse(Vector toLight, Vector normal){
+
         return Math.max(0, toLight.dot(normal));
     }
 
@@ -291,7 +272,7 @@ public class Renderer {
      * @param shininess the shininess coefficient of the object being shaded
      * @return the specular component
      */
-    private double calculateSpec(Vector lightToIntersection, Vector normal, Vector intersectionToRayOrigin, double shininess) {
+    private double calculateSpecular(Vector lightToIntersection, Vector normal, Vector intersectionToRayOrigin, double shininess) {
         Vector secondaryRay = lightToIntersection.sub(normal.mul(2 * lightToIntersection.dot(normal)));
         secondaryRay.normalise();
 

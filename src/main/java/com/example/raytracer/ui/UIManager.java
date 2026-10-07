@@ -18,6 +18,7 @@ import com.example.raytracer.render.Renderer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class UIManager {
@@ -275,7 +276,7 @@ public class UIManager {
 
 
 
-        VBox leftControlsPanel = new VBox(15,
+        VBox leftControlsPanel= new VBox(15,
 
                 modelSection,
 
@@ -310,6 +311,8 @@ public class UIManager {
 
                 defaultSection
         );
+
+        List<Pane> controls = List.of(leftControlsPanel, bottomControlsPanel);
 
         bottomControlsPanel.getStyleClass().add("controls-panel");
 
@@ -392,7 +395,7 @@ public class UIManager {
                 BUNNY_FILE,
                 2600,
                 new Vector(50,-250,0),
-                leftControlsPanel,
+                controls,
                 renderProgressBar
         );
 
@@ -411,7 +414,7 @@ public class UIManager {
                             BUNNY_FILE,
                             3000,
                             new Vector(50,-250,0),
-                            leftControlsPanel,
+                            controls,
                             renderProgressBar
                     );
                 }
@@ -421,7 +424,7 @@ public class UIManager {
                             DRAGON_FILE,
                             3000,
                             new Vector(0,-350,-50),
-                            leftControlsPanel,
+                            controls,
                             renderProgressBar
                     );
                 }
@@ -431,7 +434,7 @@ public class UIManager {
                             BUDDHA_FILE,
                             3000,
                             new Vector(0,-400,0),
-                            leftControlsPanel,
+                            controls,
                             renderProgressBar
                     );
                 }
@@ -445,55 +448,55 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = cameraDistanceSlider.getValue();
 
-                requestRender(true, () -> camera.setRadius(finalValue), leftControlsPanel,  renderProgressBar);
+                requestRender(true, () -> camera.setRadius(finalValue), controls,  renderProgressBar);
             }
         });
 
         cameraDistanceSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
             requestedVal = newValue.doubleValue();
-            requestRender(false, () -> camera.setRadius(requestedVal), leftControlsPanel,  renderProgressBar);
+            requestRender(false, () -> camera.setRadius(requestedVal), controls,  renderProgressBar);
         });
 
         cameraYawSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraYawSlider.getValue();
 
-                requestRender(true, () -> camera.setYaw(finalValue), leftControlsPanel,  renderProgressBar);
+                requestRender(true, () -> camera.setYaw(finalValue), controls,  renderProgressBar);
             }
         });
 
         cameraYawSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> camera.setYaw(requestedVal), leftControlsPanel,  renderProgressBar);
+            requestRender(false, () -> camera.setYaw(requestedVal), controls,  renderProgressBar);
         });
 
         cameraPitchSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraPitchSlider.getValue();
 
-                requestRender(true, () -> camera.setPitch(finalValue), leftControlsPanel,  renderProgressBar);
+                requestRender(true, () -> camera.setPitch(finalValue), controls,  renderProgressBar);
             }
         });
 
         cameraPitchSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> camera.setPitch(requestedVal), leftControlsPanel,  renderProgressBar);
+            requestRender(false, () -> camera.setPitch(requestedVal), controls,  renderProgressBar);
         });
 
         cameraFovSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = cameraFovSlider.getValue();
 
-                requestRender(true, () -> camera.setFov(finalValue), leftControlsPanel,  renderProgressBar);
+                requestRender(true, () -> camera.setFov(finalValue), controls,  renderProgressBar);
             }
         });
 
         cameraFovSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> camera.setFov(requestedVal), leftControlsPanel,  renderProgressBar);
+            requestRender(false, () -> camera.setFov(requestedVal), controls,  renderProgressBar);
         });
 
 
@@ -510,7 +513,7 @@ public class UIManager {
 
             currentColor = color;
 
-            startRender(leftControlsPanel, renderProgressBar);
+            startRender(controls, renderProgressBar);
 
         });
 
@@ -521,7 +524,7 @@ public class UIManager {
 
                 currentShininess = finalValue;
 
-                startRender(leftControlsPanel, renderProgressBar);
+                startRender(controls, renderProgressBar);
             }
         });
 
@@ -538,7 +541,7 @@ public class UIManager {
             Color color = lightColorPicker.getValue();
 
             renderScene.getLight().setColor(color);
-            startRender(leftControlsPanel, renderProgressBar);
+            startRender(controls, renderProgressBar);
         });
 
 
@@ -546,7 +549,7 @@ public class UIManager {
             if (!isChanging) {
                 double finalValue = lightXAxisSlider.getValue();
 
-                requestRender(true, () -> renderScene.getLight().setXPos(-finalValue), leftControlsPanel,  renderProgressBar);
+                requestRender(true, () -> renderScene.getLight().setXPos(-finalValue), controls,  renderProgressBar);
             }
         });
 
@@ -557,14 +560,14 @@ public class UIManager {
 
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> renderScene.getLight().setXPos(-requestedVal), leftControlsPanel,  renderProgressBar);
+            requestRender(false, () -> renderScene.getLight().setXPos(-requestedVal), controls,  renderProgressBar);
         });
 
         lightYAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightYAxisSlider.getValue();
 
-                requestRender(true, () -> renderScene.getLight().setYPos(finalValue), leftControlsPanel,  renderProgressBar);
+                requestRender(true, () -> renderScene.getLight().setYPos(finalValue), controls,  renderProgressBar);
             }
         });
 
@@ -575,14 +578,14 @@ public class UIManager {
 
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> renderScene.getLight().setYPos(requestedVal), leftControlsPanel,  renderProgressBar);
+            requestRender(false, () -> renderScene.getLight().setYPos(requestedVal), controls,  renderProgressBar);
         });
 
         lightZAxisSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
             if (!isChanging) {
                 double finalValue = lightZAxisSlider.getValue();
 
-                requestRender(true,  () -> renderScene.getLight().setZPos(finalValue), leftControlsPanel,  renderProgressBar);
+                requestRender(true,  () -> renderScene.getLight().setZPos(finalValue), controls,  renderProgressBar);
             }
         });
 
@@ -593,7 +596,7 @@ public class UIManager {
 
             requestedVal = newValue.doubleValue();
 
-            requestRender(false, () -> renderScene.getLight().setZPos(requestedVal), leftControlsPanel,  renderProgressBar);
+            requestRender(false, () -> renderScene.getLight().setZPos(requestedVal), controls,  renderProgressBar);
         });
 
 
@@ -606,15 +609,15 @@ public class UIManager {
         //shadow actions
         shadowQualityLowButton.setOnAction(e -> {
             renderer.setShadowQualityLow();
-            startRender(leftControlsPanel, renderProgressBar);
+            startRender(controls, renderProgressBar);
         });
         shadowQualityHighButton.setOnAction(e -> {
             renderer.setShadowQualityHigh();
-            startRender(leftControlsPanel, renderProgressBar);
+            startRender(controls, renderProgressBar);
         });
         shadowQualityVeryHighButton.setOnAction(e -> {
             renderer.setShadowQualityVeryHigh();
-            startRender(leftControlsPanel, renderProgressBar);
+            startRender(controls, renderProgressBar);
         });
 
         //Resolution actions
@@ -624,22 +627,22 @@ public class UIManager {
             switch (selectedResolution) {
                 case "300 x 300" -> {
                     currentResolution = 250;
-                    requestRender(true, () -> {}, leftControlsPanel,  renderProgressBar);
+                    requestRender(true, () -> {}, controls,  renderProgressBar);
                 }
 
                 case "500 x 500" -> {
                     currentResolution = 500;
-                    requestRender(true, () -> {}, leftControlsPanel,  renderProgressBar);
+                    requestRender(true, () -> {}, controls,  renderProgressBar);
                 }
 
                 case "750 x 750" -> {
                     currentResolution = 750;
-                    requestRender(true, () -> {}, leftControlsPanel,  renderProgressBar);
+                    requestRender(true, () -> {}, controls,  renderProgressBar);
                 }
 
                 case "1000 x 1000" -> {
                     currentResolution = 1000;
-                    requestRender(true, () -> {}, leftControlsPanel,  renderProgressBar);
+                    requestRender(true, () -> {}, controls,  renderProgressBar);
                 }
             }
         });
@@ -688,7 +691,7 @@ public class UIManager {
 
             renderer.setShadowQualityLow();
 
-            requestRender(true, () -> {}, leftControlsPanel, renderProgressBar);
+            requestRender(true, () -> {}, controls, renderProgressBar);
         });
     }
 
@@ -697,7 +700,7 @@ public class UIManager {
 
 
 
-    private void startRender(VBox controlsPanel, ProgressBar renderProgressBar) {
+    private void startRender(List<Pane> controls, ProgressBar renderProgressBar) {
         Task<Void> renderTask = new Task<>() {
             @Override
             protected Void call() {
@@ -706,18 +709,21 @@ public class UIManager {
             }
         };
 
-        controlsPanel.setDisable(true);
+        disableControls(controls);
+
         renderProgressBar.setVisible(true);
         renderProgressBar.progressProperty().bind(renderTask.progressProperty());
 
         renderTask.setOnSucceeded(e -> {
-            controlsPanel.setDisable(false);
+            enableControls(controls);
+
             renderProgressBar.progressProperty().unbind();
             renderProgressBar.setProgress(0);
         });
 
         renderTask.setOnFailed(e -> {
-            controlsPanel.setDisable(false);
+            enableControls(controls);
+
             renderProgressBar.progressProperty().unbind();
             renderProgressBar.setProgress(0);
 
@@ -735,7 +741,7 @@ public class UIManager {
             String filePath,
             double scale,
             Vector position,
-            VBox controlsPanel,
+            List<Pane> controls,
             ProgressBar renderProgressBar) {
 
         Task<Void> task = new Task<>() {
@@ -751,18 +757,21 @@ public class UIManager {
             }
         };
 
-        controlsPanel.setDisable(true);
+        disableControls(controls);
+
         renderProgressBar.setVisible(true);
         renderProgressBar.progressProperty().bind(task.progressProperty());
 
         task.setOnSucceeded(e -> {
-            controlsPanel.setDisable(false);
+            enableControls(controls);
+
             renderProgressBar.progressProperty().unbind();
             renderProgressBar.setProgress(0);
         });
 
         task.setOnFailed(e -> {
-            controlsPanel.setDisable(false);
+            enableControls(controls);
+
             renderProgressBar.progressProperty().unbind();
             renderProgressBar.setProgress(0);
 
@@ -800,13 +809,13 @@ public class UIManager {
             Model model = new Model(modelTriangles);
             model.setColor(currentColor);
             model.setShininess(currentShininess);
-            renderScene.addObjects(model.getTriangles());
+            renderScene.replaceModel(model.getTriangles());
 
             currentModel = model;
         }
     }
 
-    private void requestRender(boolean finalRender, Runnable update, VBox controlsPanel, ProgressBar renderProgressBar) {
+    private void requestRender(boolean finalRender, Runnable update, List<Pane> controls, ProgressBar renderProgressBar) {
         if(renderInProgress){
             renderAgain = true;
 
@@ -848,7 +857,7 @@ public class UIManager {
         };
 
         if (finalRender) {
-            controlsPanel.setDisable(true);
+            disableControls(controls);
 
             renderProgressBar.setVisible(true);
             renderProgressBar.progressProperty()
@@ -861,7 +870,7 @@ public class UIManager {
             renderInProgress = false;
 
             if (finalRender) {
-                controlsPanel.setDisable(false);
+                enableControls(controls);
 
                 renderProgressBar.progressProperty().unbind();
                 renderProgressBar.setProgress(0);
@@ -871,17 +880,17 @@ public class UIManager {
                 pendingFinalRender = false;
                 renderAgain = false;
 
-                requestRender(true, pendingUpdate, controlsPanel, renderProgressBar);
+                requestRender(true, pendingUpdate, controls, renderProgressBar);
             } else if(renderAgain){
                 renderAgain = false;
-                requestRender(false, pendingUpdate, controlsPanel, renderProgressBar);
+                requestRender(false, pendingUpdate, controls, renderProgressBar);
             }
         });
 
         task.setOnFailed(e -> {
 
             if (finalRender) {
-                controlsPanel.setDisable(false);
+                enableControls(controls);
 
                 renderProgressBar.progressProperty().unbind();
                 renderProgressBar.setProgress(0);
@@ -905,6 +914,19 @@ public class UIManager {
                 offset
         );
     }
+
+    private void disableControls(List<Pane> controls){
+        for(Pane control : controls){
+            control.setDisable(true);
+        }
+    }
+
+    private void enableControls(List<Pane> controls){
+        for(Pane control : controls){
+            control.setDisable(false);
+        }
+    }
+
 }
 
 

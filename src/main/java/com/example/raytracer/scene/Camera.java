@@ -2,11 +2,16 @@ package com.example.raytracer.scene;
 
 import com.example.raytracer.math.Vector;
 
+/**
+ * Represents a camera that orbits around a target using yaw, pitch and distance.
+ */
 public class Camera {
 
+    //The point the camera orbits around
     private Vector lookAt;
 
     private Vector position;
+
     private Vector forward;
     private Vector right;
     private Vector up;
@@ -27,7 +32,7 @@ public class Camera {
         update();
     }
 
-    public void update(){
+    private void update(){
         updatePosition();
         updateVectors();
     }
@@ -82,7 +87,7 @@ public class Camera {
     }
 
     public void setYaw(double yaw) {
-        this.yaw = yaw;
+        this.yaw = Math.clamp(yaw, 0, 360);
         update();
     }
 
@@ -92,7 +97,7 @@ public class Camera {
     }
 
     public void setRadius(double radius) {
-        this.radius = radius;
+        this.radius = Math.max(radius, 1);
         update();
     }
 
@@ -102,9 +107,6 @@ public class Camera {
     }
 
     public void setFov(double fov) {
-        this.fov = fov;
-        update();
+        this.fov = Math.clamp(fov, 1, 179);
     }
-
-
 }

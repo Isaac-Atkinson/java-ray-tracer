@@ -7,8 +7,8 @@ import com.example.raytracer.math.Vector;
  */
 public class BoundingBox {
 
-    public Vector minValues;
-    public Vector maxValues;
+    private final Vector minValues;
+    private final Vector maxValues;
 
 
 
@@ -33,5 +33,13 @@ public class BoundingBox {
         }  else {
             return Axis.Z;
         }
+    }
+
+    public Vector getMinValues() {
+        return minValues;
+    }
+
+    public Vector getMaxValues() {
+        return maxValues;
     }
 }

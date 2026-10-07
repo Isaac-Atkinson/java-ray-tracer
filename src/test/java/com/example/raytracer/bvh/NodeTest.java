@@ -22,13 +22,13 @@ class NodeTest {
 
         node.constructBoundingBox();
 
-        assertEquals(-10, node.boundingBox.minValues.x);
-        assertEquals(-10, node.boundingBox.minValues.y);
-        assertEquals(-10, node.boundingBox.minValues.z);
+        assertEquals(-10, node.getBoundingBox().getMinValues().x);
+        assertEquals(-10, node.getBoundingBox().getMinValues().y);
+        assertEquals(-10, node.getBoundingBox().getMinValues().z);
 
-        assertEquals(10, node.boundingBox.maxValues.x);
-        assertEquals(10, node.boundingBox.maxValues.y);
-        assertEquals(10, node.boundingBox.maxValues.z);
+        assertEquals(10, node.getBoundingBox().getMaxValues().x);
+        assertEquals(10, node.getBoundingBox().getMaxValues().y);
+        assertEquals(10, node.getBoundingBox().getMaxValues().z);
     }
 
     @Test
@@ -42,13 +42,13 @@ class NodeTest {
 
         node.constructBoundingBox();
 
-        assertEquals(-20, node.boundingBox.minValues.x);
-        assertEquals(-20, node.boundingBox.minValues.y);
-        assertEquals(-20, node.boundingBox.minValues.z);
+        assertEquals(-20, node.getBoundingBox().getMinValues().x);
+        assertEquals(-20, node.getBoundingBox().getMinValues().y);
+        assertEquals(-20, node.getBoundingBox().getMinValues().z);
 
-        assertEquals(20, node.boundingBox.maxValues.x);
-        assertEquals(20, node.boundingBox.maxValues.y);
-        assertEquals(20, node.boundingBox.maxValues.z);
+        assertEquals(20, node.getBoundingBox().getMaxValues().x);
+        assertEquals(20, node.getBoundingBox().getMaxValues().y);
+        assertEquals(20, node.getBoundingBox().getMaxValues().z);
     }
 
     @Test
@@ -63,13 +63,13 @@ class NodeTest {
 
         node.constructBoundingBox();
 
-        assertEquals(-10, node.boundingBox.minValues.x);
-        assertEquals(-35, node.boundingBox.minValues.y);
-        assertEquals(-20, node.boundingBox.minValues.z);
+        assertEquals(-10, node.getBoundingBox().getMinValues().x);
+        assertEquals(-35, node.getBoundingBox().getMinValues().y);
+        assertEquals(-20, node.getBoundingBox().getMinValues().z);
 
-        assertEquals(25, node.boundingBox.maxValues.x);
-        assertEquals(15, node.boundingBox.maxValues.y);
-        assertEquals(20, node.boundingBox.maxValues.z);
+        assertEquals(25, node.getBoundingBox().getMaxValues().x);
+        assertEquals(15, node.getBoundingBox().getMaxValues().y);
+        assertEquals(20, node.getBoundingBox().getMaxValues().z);
     }
 
 
@@ -88,9 +88,9 @@ class NodeTest {
 
         node.sortPrimitives(Axis.X);
 
-        assertSame(left, node.primitives.get(0));
-        assertSame(middle, node.primitives.get(1));
-        assertSame(right, node.primitives.get(2));
+        assertSame(left, node.getPrimitives().get(0));
+        assertSame(middle, node.getPrimitives().get(1));
+        assertSame(right, node.getPrimitives().get(2));
     }
 
     @Test
@@ -107,9 +107,9 @@ class NodeTest {
 
         node.sortPrimitives(Axis.Y);
 
-        assertSame(bottom, node.primitives.get(0));
-        assertSame(middle, node.primitives.get(1));
-        assertSame(top, node.primitives.get(2));
+        assertSame(bottom, node.getPrimitives().get(0));
+        assertSame(middle, node.getPrimitives().get(1));
+        assertSame(top, node.getPrimitives().get(2));
     }
 
     @Test
@@ -126,9 +126,9 @@ class NodeTest {
 
         node.sortPrimitives(Axis.Z);
 
-        assertSame(back, node.primitives.get(0));
-        assertSame(middle, node.primitives.get(1));
-        assertSame(front, node.primitives.get(2));
+        assertSame(back, node.getPrimitives().get(0));
+        assertSame(middle, node.getPrimitives().get(1));
+        assertSame(front, node.getPrimitives().get(2));
     }
 
 }

@@ -49,6 +49,14 @@ A JavaFX interface lets you control the camera, lighting, material properties, a
 
 The Maven wrapper is included therefore a separate Maven installation is not required.
 
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Isaac-Atkinson/java-ray-tracer.git
+```
+
+### 2. Run the application
+
 From the project directory:
 
 **Windows**
@@ -97,6 +105,10 @@ src/
 │       └── style.css
 └── test/
     └── java/
+        └── com/example/raytracer/
+            ├── geometry/
+            ├── math/
+            └── bvh/
 ```
 
 ## Gallery

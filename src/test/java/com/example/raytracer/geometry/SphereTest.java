@@ -111,13 +111,13 @@ class SphereTest {
         Sphere s = new Sphere(new Vector(10, -20, 30), 5); // min (5, -25, 25) // max(15, -15, 35)
 
 
-        assertEquals(5, s.minVals.x);
-        assertEquals(-25, s.minVals.y);
-        assertEquals(25, s.minVals.z);
+        assertEquals(5, s.getMinVals().x);
+        assertEquals(-25, s.getMinVals().y);
+        assertEquals(25, s.getMinVals().z);
 
-        assertEquals(15, s.maxVals.x);
-        assertEquals(-15, s.maxVals.y);
-        assertEquals(35, s.maxVals.z);
+        assertEquals(15, s.getMaxVals().x);
+        assertEquals(-15, s.getMaxVals().y);
+        assertEquals(35, s.getMaxVals().z);
     }
 
 }

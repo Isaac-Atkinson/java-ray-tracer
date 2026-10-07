@@ -11,15 +11,17 @@ import java.util.ArrayList;
 
 /**
  * Represents the scene to be rendered.
- * Stores the objects, light source and BVH
+ * Stores the objects, light source and the BVH acceleration structure.
  */
 public class RenderScene {
 
-    private ArrayList<SceneObject> objects = new ArrayList<>();
+    private final ArrayList<SceneObject> objects = new ArrayList<>();
 
     private LightSource light;
 
     private final BVH bvh;
+
+
 
     public RenderScene(){
         initialiseScene();
@@ -27,36 +29,27 @@ public class RenderScene {
     }
 
     /**
-     * returns the closest intersection between the ray and the scene
+     * returns the closest intersection between the ray and the scene.
      * @param ray the ray being traced
      * @return an Intersection containing information about the closest hit
      */
     public Intersection closestHit(Ray ray){
-        return bvh.traverseBVH(ray);
+        return bvh.closestHit(ray);
     }
 
+    /**
+     * Determines if a ray is blocked from reaching the light source.
+     * @param ray a ray from the intersection to the light source
+     * @param distToLight the distance to the light sample
+     * @return true if the light source is occluded, false otherwise
+     */
     public boolean isOccluded(Ray ray, double distToLight){
         return bvh.isOccluded(ray, distToLight);
     }
 
 
 
-    public LightSource getLight(){
-        return light;
-    }
 
-
-    public void addObjects(ArrayList<SceneObject> newObjects){
-        initialiseWalls();
-        objects.addAll(newObjects);
-        bvh.addObjects(objects);
-        bvh.constructBVH();
-    }
-
-    public void clearObjects(){
-        objects.clear();
-        bvh.clearObjects();
-    }
 
 
 
@@ -88,70 +81,134 @@ public class RenderScene {
         Color diffuseBlue = Color.color(0.2, 0.2, 1);
         Color specular = Color.color(0, 0, 0);
 
-        // Back wall: z = 1600
-        Plane backWall = new Plane(
+        // Back wall: z = 2000
+        Plane backWall = createWall(
                 new Vector(0, 0, -1),
                 new Vector(0, 0, 2000),
-                ambientBlue, diffuseBlue, specular, 0
+                ambientBlue,
+                diffuseBlue,
+                specular,
+                new Vector(-2000, -2000, 2000),
+                new Vector(2000, 2000, 2000),
+                new Vector(0, 0, 2000)
         );
-        backWall.minVals = new Vector(-2000, -2000, 2000);
-        backWall.maxVals = new Vector(2000, 2000, 2000);
-        backWall.centre = new Vector(0, 0, 2000);
         objects.add(backWall);
 
-        // Front wall: z = -1600
-        Plane frontWall = new Plane(
+
+        // Front wall: z = -2000
+        Plane frontWall = createWall(
                 new Vector(0, 0, 1),
                 new Vector(0, 0, -2000),
-                ambientBlue, diffuseBlue, specular, 0
+                ambientBlue,
+                diffuseBlue,
+                specular,
+                new Vector(-2000, -2000, -2000),
+                new Vector(2000, 2000, -2000),
+                new Vector(0, 0, -2000)
         );
-        frontWall.minVals = new Vector(-2000, -2000, -2000);
-        frontWall.maxVals = new Vector(2000, 2000, -2000);
-        frontWall.centre = new Vector(0, 0, -2000);
         objects.add(frontWall);
 
-        // Left wall: x = -800
-        Plane leftWall = new Plane(
+
+        // Left wall: x = -2000
+        Plane leftWall = createWall(
                 new Vector(1, 0, 0),
                 new Vector(-2000, 0, 0),
-                ambientRed, diffuseRed, specular, 0
+                ambientRed,
+                diffuseRed,
+                specular,
+                new Vector(-2000, -2000, -2000),
+                new Vector(-2000, 2000, 2000),
+                new Vector(-2000, 0, 0)
         );
-        leftWall.minVals = new Vector(-2000, -2000, -2000);
-        leftWall.maxVals = new Vector(-2000, 2000, 2000);
-        leftWall.centre = new Vector(-2000, 0, 0);
         objects.add(leftWall);
 
-        // Right wall: x = 800
-        Plane rightWall = new Plane(
+
+        // Right wall: x = 2000
+        Plane rightWall = createWall(
                 new Vector(-1, 0, 0),
                 new Vector(2000, 0, 0),
-                ambientRed, diffuseRed, specular, 0
+                ambientRed,
+                diffuseRed,
+                specular,
+                new Vector(2000, -2000, -2000),
+                new Vector(2000, 2000, 2000),
+                new Vector(2000, 0, 0)
         );
-        rightWall.minVals = new Vector(2000, -2000, -2000);
-        rightWall.maxVals = new Vector(2000, 2000, 2000);
-        rightWall.centre = new Vector(2000, 0, 0);
         objects.add(rightWall);
 
-        // Floor: y = -800
-        Plane floor = new Plane(
+
+        // Floor: y = -2000
+        Plane floor = createWall(
                 new Vector(0, 1, 0),
                 new Vector(0, -2000, 0),
-                ambientGreen, diffuseGreen, specular, 0
+                ambientGreen,
+                diffuseGreen,
+                specular,
+                new Vector(-2000, -2000, -2000),
+                new Vector(2000, -2000, 2000),
+                new Vector(0, -2000, 0)
         );
-        floor.minVals = new Vector(-2000, -1600, -2000);
-        floor.maxVals = new Vector(2000, -1600, 2000);
-        floor.centre = new Vector(0, -1600, 0);
         objects.add(floor);
 
-        // Ceiling: y = 800
-        Plane ceiling = new Plane(
+
+        // Ceiling: y = 2000
+        Plane ceiling = createWall(
                 new Vector(0, -1, 0),
                 new Vector(0, 2000, 0),
-                ambientGreen, diffuseGreen, specular, 0
+                ambientGreen,
+                diffuseGreen,
+                specular,
+                new Vector(-2000, 2000, -2000),
+                new Vector(2000, 2000, 2000),
+                new Vector(0, 2000, 0)
         );
-        ceiling.minVals = new Vector(-2000, 2000, -2000);
-        ceiling.maxVals = new Vector(2000, 2000, 2000);
-        ceiling.centre = new Vector(0, 2000, 0);
         objects.add(ceiling);
+    }
+
+    private Plane createWall(
+            Vector normal,
+            Vector pointOnPlane,
+            Color ambient,
+            Color diffuse,
+            Color specular,
+            Vector minVals,
+            Vector maxVals,
+            Vector centre
+    ){
+        Plane wall = new Plane(
+                normal,
+                pointOnPlane,
+                ambient,
+                diffuse,
+                specular,
+                0
+        );
+
+        wall.setMinVals(minVals);
+        wall.setMaxVals(maxVals);
+        wall.setCentre(centre);
+
+        return wall;
+    }
+
+
+
+    public void replaceModel(ArrayList<SceneObject> newObjects) {
+        clearObjects();
+
+        initialiseWalls();
+        objects.addAll(newObjects);
+
+        bvh.addObjects(objects);
+        bvh.constructBVH();
+    }
+
+    public void clearObjects(){
+        objects.clear();
+        bvh.clearObjects();
+    }
+
+    public LightSource getLight(){
+        return light;
     }
 }

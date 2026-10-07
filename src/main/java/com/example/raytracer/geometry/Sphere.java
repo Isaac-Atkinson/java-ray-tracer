@@ -2,7 +2,6 @@ package com.example.raytracer.geometry;
 
 import com.example.raytracer.math.Intersection;
 import com.example.raytracer.math.Ray;
-import javafx.scene.paint.Color;
 import com.example.raytracer.math.Vector;
 
 /**
@@ -12,14 +11,8 @@ import com.example.raytracer.math.Vector;
 public class Sphere extends SceneObject {
 
 
-    public double radius;
+    private final double radius;
 
-
-    public Sphere(Vector centre, double radius, Color ambient, Color diffuse, Color specular, double shininess) {
-        super(ambient, diffuse, specular, shininess, centre);
-        this.radius = radius;
-        calculateBounds();
-    }
 
     public Sphere(Vector sphereCentre, double radius) {
         this.centre = sphereCentre;
@@ -30,11 +23,10 @@ public class Sphere extends SceneObject {
     /**
      * Tests a ray for intersection with this sphere
      * @param ray the ray to test
-     * @return a HitObject representing the intersection, or null
-     * if there is no intersection
+     * @return the intersection, or null if the ray does not hit the sphere
      */
     public Intersection intersect(Ray ray){
-        Vector v = ray.origin.sub(centre);
+        Vector v = ray.origin.sub(getCentre());
 
         double a = ray.direction.dot(ray.direction);
         double b = 2 * v.dot(ray.direction);
@@ -47,13 +39,15 @@ public class Sphere extends SceneObject {
         double t1 = (-b - Math.sqrt(disc)) / (2 * a);
         double t2 = (-b + Math.sqrt(disc)) / (2 * a);
         double t = smallestPositive(t1, t2);
+
         if(t == -1) return null;
+
         return new Intersection(this, t);
     }
 
     @Override
     public Vector getNormal(Vector intersection) {
-        return intersection.sub(centre);
+        return intersection.sub(getCentre());
     }
 
 
@@ -69,13 +63,16 @@ public class Sphere extends SceneObject {
         }
     }
 
+    /**
+     * Calculates the minimum and maximum values of this sphere in 3D space.
+     */
     private void calculateBounds() {
-        double lowestX = centre.x - radius;
-        double highestX = centre.x + radius;
-        double lowestY = centre.y - radius;
-        double highestY = centre.y + radius;
-        double lowestZ = centre.z - radius;
-        double highestZ = centre.z + radius;
+        double lowestX = getCentre().x - radius;
+        double highestX = getCentre().x + radius;
+        double lowestY = getCentre().y - radius;
+        double highestY = getCentre().y + radius;
+        double lowestZ = getCentre().z - radius;
+        double highestZ = getCentre().z + radius;
 
         minVals = new Vector(lowestX, lowestY, lowestZ);
         maxVals = new Vector(highestX, highestY, highestZ);
