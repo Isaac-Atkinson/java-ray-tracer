@@ -1,13 +1,17 @@
-package com.example.raytracer.geometry;
+package com.example.raytracer.scene;
 
-import javafx.scene.effect.Light;
+import com.example.raytracer.geometry.SceneObject;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
+/**
+ * Represents a triangle mesh model.
+ * Stores all the primitives that make up this model.
+ */
 public class Model {
 
-    private static final double AMBIENT_FACTOR = 0.1;
+    private static final double AMBIENT_FACTOR = 0.2;
 
     private static final Color SPECULAR_COLOR = Color.color(0.95, 0.95, 0.95);
 

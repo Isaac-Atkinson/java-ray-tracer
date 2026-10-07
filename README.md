@@ -2,7 +2,7 @@
 
 # Java Ray Tracer
 
-An interactive ray tracer written in Java and JavaFX, supporting triangle meshes, soft shadows, interactive camera controls, and BVH acceleration.
+An interactive ray tracer written in Java and JavaFX, supporting triangle mesh models, soft shadows, interactive camera controls, and BVH acceleration.
 
 <img src="docs/screenshots/Dragon_Render_With_UI.png" alt="A render of the Stanford Dragon model with soft shadows">
 
@@ -18,7 +18,7 @@ A JavaFX interface lets you control the camera, lighting, material properties, a
 
 ## Features
 
-- Renders complex PLY triangle meshes
+- Renders complex PLY triangle mesh models
 - Interactive 3D camera
   - Yaw
   - Pitch
@@ -40,6 +40,21 @@ A JavaFX interface lets you control the camera, lighting, material properties, a
 ### Lighting Controls
 
 <img src="docs/gifs/Light_Movement.gif" alt="Light movement demo">
+
+## Performance
+
+To speed up rendering, a **Bounding Volume Hierarchy (BVH)** is used to  
+skip large groups of triangles a ray cannot hit instead of testing every triangle individually.
+
+Benchmarked at **500×500 resolution** with **high shadow quality** on a **12th Gen Intel Core i7-12700KF**:
+
+| Model           | Triangles | Without BVH | With BVH |
+| --------------- | --------: | ----------: | -------: |
+| Stanford Bunny  | ~69k      | ~41 s     | ~0.39 s  |
+| Stanford Dragon | ~871k     | ~691 s | ~0.51 s  |
+| Happy Buddha    | ~1.09M    | ~1189 s| ~0.53 s  |
+
+For the Happy Buddha model, the BVH gives a speedup of over **2200x**, which makes interactive rendering practical.
 
 ## Running the application
 

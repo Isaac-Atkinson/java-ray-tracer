@@ -1,8 +1,8 @@
 package com.example.raytracer.math;
 
 /**
- * Represents a ray
- * rays have an origin and a direction
+ * Represents a ray.
+ * rays have an origin and a direction.
  */
 public class Ray {
 

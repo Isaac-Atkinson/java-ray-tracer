@@ -6,4 +6,5 @@ module com.example.raytracer {
     exports com.example.raytracer.ui;
 
     opens com.example.raytracer.geometry to org.junit.platform.commons;
+    opens com.example.raytracer.scene to org.junit.platform.commons;
 }

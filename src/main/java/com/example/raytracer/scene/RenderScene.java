@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 /**
  * Represents the scene to be rendered.
- * Stores the objects, light source and the BVH acceleration structure.
+ * Stores the scene objects, light source and the BVH acceleration structure.
  */
 public class RenderScene {
 
@@ -36,6 +36,8 @@ public class RenderScene {
     public Intersection closestHit(Ray ray){
         return bvh.closestHit(ray);
     }
+
+
 
     /**
      * Determines if a ray is blocked from reaching the light source.

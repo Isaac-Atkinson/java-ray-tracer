@@ -7,7 +7,8 @@ import com.example.raytracer.math.Vector;
 
 
 /**
- * Represents a triangle in 3D space
+ * Represents a 3D triangle.
+ * Stores its three vertices.
  */
 public class Triangle extends SceneObject {
 

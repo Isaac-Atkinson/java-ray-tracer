@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 
 
 /**
- * Represents a light source
+ * Represents a light source.
  * Light sources are defined by their position, colour, width, height
  * and two direction vectors up and right defining its orientation.
  */

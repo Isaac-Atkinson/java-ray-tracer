@@ -1,6 +1,6 @@
 package com.example.raytracer.ui;
 
-import com.example.raytracer.geometry.Model;
+import com.example.raytracer.scene.Model;
 import com.example.raytracer.geometry.SceneObject;
 import com.example.raytracer.scene.Camera;
 import com.example.raytracer.math.Vector;
@@ -688,7 +688,6 @@ public class UIManager {
             resolutionSelector.setValue("500 x 500");
             currentResolution = defaultResolution;
 
-
             renderer.setShadowQualityLow();
 
             requestRender(true, () -> {}, controls, renderProgressBar);
@@ -704,7 +703,9 @@ public class UIManager {
         Task<Void> renderTask = new Task<>() {
             @Override
             protected Void call() {
+
                 renderer.render(progress -> updateProgress(progress, 1.0));
+
                 return null;
             }
         };

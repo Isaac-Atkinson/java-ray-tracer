@@ -3,7 +3,9 @@ package com.example.raytracer.bvh;
 import com.example.raytracer.math.Vector;
 
 /**
- * Represents a bounding box
+ * Represents a 3D bounding box which encloses all its primitives
+ * as tightly as possible.
+ * Stores its minimum and maximum extents.
  */
 public class BoundingBox {
 

@@ -3,7 +3,7 @@ package com.example.raytracer.scene;
 import com.example.raytracer.math.Vector;
 
 /**
- * Represents a camera that orbits around a target using yaw, pitch and distance.
+ * Represents a camera that orbits around a fixed point using yaw, pitch and distance.
  */
 public class Camera {
 

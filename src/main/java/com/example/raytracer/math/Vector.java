@@ -1,8 +1,8 @@
 package com.example.raytracer.math;
 
 /**
- * represents a 3D vector
- * Vectors can represent a point in space or a direction
+ * represents a 3D vector.
+ * Vectors can represent a point in space or a direction.
  */
 public class Vector {
 

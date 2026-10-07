@@ -5,7 +5,9 @@ import com.example.raytracer.math.Ray;
 import com.example.raytracer.math.Vector;
 import javafx.scene.paint.Color;
 
-
+/**
+ * Base class from which all geometric primitives inherit.
+ */
 public abstract class SceneObject {
 
     protected Color diffuse;

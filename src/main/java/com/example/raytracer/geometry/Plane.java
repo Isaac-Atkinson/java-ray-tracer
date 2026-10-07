@@ -4,7 +4,10 @@ import com.example.raytracer.math.Ray;
 import com.example.raytracer.math.Vector;
 import javafx.scene.paint.Color;
 
-
+/**
+ * Represents a 3D plane.
+ * Stores a plane normal and a point on the plane.
+ */
 public class Plane extends SceneObject {
 
     private static final double EPSILON = 1e-6;
